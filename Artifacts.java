@@ -146,7 +146,7 @@ Result compareTwoStarCharts(int risk1, int risk2) {
     }
 }
 
-Result compareTwoEnergyCrystals(power1, power2) {
+Result compareTwoEnergyCrystals(int power1, int power2) {
     if (power1 < power2) {
         return Result.isValuable;
     } else {
@@ -154,19 +154,47 @@ Result compareTwoEnergyCrystals(power1, power2) {
     }
 }
 
-Result compareTwoInertRocks(color1, color2) {
-    if (color1 Equals color2) {
+Result compareTwoInertRocks(String color1, String color2) {
+    if (Equals(color1, color2)) {
         return Result.isMundane;
     } else {
         return Result.isIncompatible;
     }
 }
 
-void main(String... args) {
-    Result r = (args[0], args[1]);
-    println(rationalScavengerAnalysis(r));
-} 
+boolean isValuable(Result result) {
+    return result == Result.isValuable;
+}
+
+boolean isMundane(Result result) {
+    return result == Result.isMundane;
+}
+
+boolean isHazardous(Result result) {
+    return result == Result.isHazardous;
+}
+
+boolean isIncompatible(Result result) {
+    return result == Result.isIncompatible;
+}
+
+boolean isUnknown(Result result) {
+    return result == Result.isUnknown;
+}
+
+void main() {
+    Artifact ownedArtifact = new EnergyCrystal(1);
+    Artifact newArtifact = new EnergyCrystal(2);
+    println(rationalScavengerAnalysis(ownedArtifact, newArtifact));
+}
+
+void testRationalScavengerAnalysisExample() {
+    Artifact ownedArtifact = new EnergyCrystal(1);
+    Artifact newArtifact = new EnergyCrystal(2);
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isValuable(result), "EnergyCrystal(2) should be more valuable than EnergyCrystal(1).");
+}
 
 void test() {
-
+    runAsTest(this::testRationalScavengerAnalysisExample);
 }
