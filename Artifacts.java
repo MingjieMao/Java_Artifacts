@@ -2,6 +2,8 @@ import comp1110.lib.*;
 import comp1110.lib.Date;
 import static comp1110.lib.Functions.*;
 
+import static comp1110.testing.Comp1110Unit.*;
+
 // [R] is type for the analysis result
 /**
  * An enumeration of results when a scavenger
@@ -103,7 +105,7 @@ Result rationalScavengerAnalysis(Artifact ownedArtifact, Artifact newArtifact) {
  * If the new artifact is an EnergyCrystal, return isMundane;
  * If the new artifact is an InertRock, return isUnknown.
  *  Examples:
- *     - Given: StarChart("Sydney",1,4,7)
+ *     - Given: StarChart("A", 2, 8, 8)
  *          Expect: 
  *     - Given: EnergyCrystal(1)
  *          Expect: 
@@ -162,6 +164,71 @@ Result compareTwoInertRocks(String color1, String color2) {
     }
 }
 
+void main() {
+    Artifact ownedArtifact1 = new StarChart("A", 2, 8, 8);
+    Artifact newArtifact1 = new StarChart("B", 4, 7, 9);
+    println(rationalScavengerAnalysis(ownedArtifact1, newArtifact1));
+
+    Artifact ownedArtifact2 = new EnergyCrystal(1);
+    Artifact newArtifact2 = new EnergyCrystal(2);
+    println(rationalScavengerAnalysis(ownedArtifact2, newArtifact2));
+
+    Artifact ownedArtifact3 = new InertRock("red");
+    Artifact newArtifact3 = new InertRock("blue");
+    println(rationalScavengerAnalysis(ownedArtifact3, newArtifact3));
+
+    Artifact ownedArtifact4 = new EnergyCrystal(2);
+    Artifact newArtifact4 = new StarChart("A", 2, 8, 8);
+    println(rationalScavengerAnalysis(ownedArtifact4, newArtifact4));
+
+    Artifact ownedArtifact5 = new InertRock("blue");
+    Artifact newArtifact5 = new EnergyCrystal(3);
+    println(rationalScavengerAnalysis(ownedArtifact5, newArtifact5));
+}
+
+void testTwoStarChartExample() {
+    Artifact ownedArtifact = new StarChart("A", 2, 8, 8);
+    Artifact newArtifact = new StarChart("B", 4, 7, 9);
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isMundane(result), "Higher risk factor of new StarChart should be mundane with owned StarChart.");
+}
+
+void testTwoEnergyCrystalExample() {
+    Artifact ownedArtifact = new EnergyCrystal(1);
+    Artifact newArtifact = new EnergyCrystal(2);
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isValuable(result), "EnergyCrystal(2) should be more valuable than EnergyCrystal(1).");
+}
+
+void testTwoInertRocksExample() {
+    Artifact ownedArtifact = new InertRock("red");
+    Artifact newArtifact = new InertRock("blue");
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isIncompatible(result), "Different colors of two InertRocks should be incompatible.");
+}
+
+void testEnergyCrystalStarChartExample() {
+    Artifact ownedArtifact = new EnergyCrystal(2);
+    Artifact newArtifact = new StarChart("A", 2, 8, 8);
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isHazardous(result), "NewArtifact is StarChart, result should be hazardous.");
+}
+
+void testInertRockEnergyCrystalExample() {
+    Artifact ownedArtifact = new InertRock("blue");
+    Artifact newArtifact = new EnergyCrystal(3);
+    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
+    testEqual(true, isUnknown(result), "InertRock with different type should be unknown.");
+}
+
+void test() {
+    runAsTest(this::testTwoStarChartExample);
+    runAsTest(this::testTwoEnergyCrystalExample);
+    runAsTest(this::testTwoInertRocksExample);
+    runAsTest(this::testEnergyCrystalStarChartExample);
+    runAsTest(this::testInertRockEnergyCrystalExample);
+}
+
 boolean isValuable(Result result) {
     return result == Result.isValuable;
 }
@@ -180,21 +247,4 @@ boolean isIncompatible(Result result) {
 
 boolean isUnknown(Result result) {
     return result == Result.isUnknown;
-}
-
-void main() {
-    Artifact ownedArtifact = new EnergyCrystal(1);
-    Artifact newArtifact = new EnergyCrystal(2);
-    println(rationalScavengerAnalysis(ownedArtifact, newArtifact));
-}
-
-void testRationalScavengerAnalysisExample() {
-    Artifact ownedArtifact = new EnergyCrystal(1);
-    Artifact newArtifact = new EnergyCrystal(2);
-    Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isValuable(result), "EnergyCrystal(2) should be more valuable than EnergyCrystal(1).");
-}
-
-void test() {
-    runAsTest(this::testRationalScavengerAnalysisExample);
 }
