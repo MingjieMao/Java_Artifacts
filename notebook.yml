@@ -1,0 +1,13 @@
+time-on-task:
+- task: "Part 1"
+  time: 60
+- task: "Part 2"
+  time: 
+- task: "Part 3"
+  time: 
+- task: "Part 4"
+  time: 
+sessions:
+- start: 2025-08-04 20:10
+  end: 2025-08-04 21:10
+  notes: "worked on part 1"
