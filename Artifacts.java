@@ -6,8 +6,7 @@ import static comp1110.testing.Comp1110Unit.*;
 
 // [R] is type for the analysis result
 /**
- * An enumeration of results when a scavenger
- * compares the newArtifact and the ownedArtifact.
+ * Represents the result of comparing a new artifact with an owned artifact.
  */
 enum Result {
     /** The newArtifact is more valuable */
@@ -31,7 +30,7 @@ enum Result {
  * @param dest - destination of StarChart
  * @param risk - risk factor of StarChart (0 is safest)
  * @param sector - the sector of origin point about StarChart
- * @param system - the sector of origin point about StarChart
+ * @param system - the system of origin point about StarChart
  */
 record StarChart(String dest, int risk, int sector, int system) implements Artifact {}
 
@@ -46,7 +45,8 @@ record EnergyCrystal(int power) implements Artifact {}
 
 /**
  * An InertRock is a record representing an inert and mysterious object.
- * The value of rocks cannot be determined. Examples:
+ * The value of rocks cannot be determined. 
+ * Examples:
  * - A InertRock of color "blue"
  * - A InertRock of color "red"
  * @param color - the color of InertRock
@@ -63,7 +63,7 @@ record InertRock(String color) implements Artifact {}
 sealed interface Artifact permits StarChart, EnergyCrystal, InertRock {}
 
 /**
- * Rational Scavenger's comparative analysis
+ * Rational Scavenger's comparative analysis:
  * Given ownedArtifact and newArtifact by a Rational Scavenger, 
  * through comparative analysis of the newArtifact and the ownedArtifact, 
  * returns the results, which can be valuable, hazardous, mundane, incompatible, or unknown.
@@ -102,6 +102,152 @@ Result rationalScavengerAnalysis(Artifact ownedArtifact, Artifact newArtifact) {
         case EnergyCrystal(int power1) -> compareOwnedEnergyCrystal(power1, newArtifact);
         case InertRock(String color1) -> compareOwnedInertRock(color1, newArtifact);
     };
+}
+
+/** 
+ * Rational Scavenger: When ownedArtifact is StarChart, analysis a newArtifact.
+ * If the new artifact is a StarChart, compare their risks.
+ * If the new artifact is an EnergyCrystal, return isMundane;
+ * If the new artifact is an InertRock, return isUnknown.
+ * Examples:
+ *     - Given: ownedArtifact = StarChart("A", 8, 8, 8), newArtifact = StarChart("C", -1, 7, 9)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = StarChart("C", -2, 4, 8), newArtifact = StarChart("S", 7, -5, 9)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("F", 0, 0, 0), newArtifact = StarChart("H", 0, 7, -3)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("A", 2, -1, 9), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("G", -3, -1, 6), newArtifact = InertRock("yellow")
+ *          Expect: isUnknown
+ * @param risk1 the risk factor of StarChart, which is Star Chart already owned by Rational Scavenger.
+ * @param newArtifact the new artifact got by Rational Scavenger.
+ * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is StarChart.
+ */
+Result compareOwnedStarChart(int risk1, Artifact newArtifact) {
+    return switch(newArtifact) {
+        case StarChart(String dest2, int risk2, int sector2, int system2) -> compareTwoStarCharts(risk1, risk2);
+        case EnergyCrystal(int power2) -> Result.isMundane;
+        case InertRock(String color2) -> Result.isUnknown;
+    };
+}
+
+/** 
+ * When comparing two Star Charts, if the new star chart has a lower risk factor than the star chart they own, 
+ * then the new star chart is considered VALUABLE otherwise it is considered MUNDANE.
+ * Examples:
+ *     - Given: ownedArtifact = StarChart("A", 8, 8, 8), newArtifact = StarChart("C", -1, 7, 9)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = StarChart("C", -2, 4, 8), newArtifact = StarChart("S", 7, -5, 9)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("F", 0, 0, 0), newArtifact = StarChart("H", 0, 7, -3)
+ *          Expect: isMundane
+ * @param risk1 the risk factor of StarChart, which is Star Chart already owned by Rational Scavenger.
+ * @param risk2 the risk factor of StarChart, which is the new Star Chart got by Rational Scavenger.
+ * @return return the result through comparative analysis of of the newArtifact and the ownedArtifact when both Star Chart.
+ */
+Result compareTwoStarCharts(int risk1, int risk2) {
+    if (risk1 > risk2) {
+        return Result.isValuable;
+    } else {
+        return Result.isMundane;
+    }
+}
+
+/** 
+ * Rational Scavenger: When ownedArtifact is EnergyCrystal, analysis a newArtifact.
+ * If the new artifact is a StarChart, return isHazardous;  
+ * If the new artifact is an EnergyCrystal, compare their power level;
+ * If the new artifact is an InertRock, return isUnknown.
+ * Examples:
+ *     - Given: ownedArtifact = EnergyCrystal(-1), newArtifact = EnergyCrystal(2)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(4), newArtifact = EnergyCrystal(-2)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(-2), newArtifact = StarChart("A", -1, 4, -8)
+ *          Expect: isHazardous 
+ *     - Given: ownedArtifact = EnergyCrystal(-3), newArtifact = InertRock("green")
+ *          Expect: isUnknown
+ * @param power1 the power level of EnergyCrystal, which is Energy Crystal already owned by Rational Scavenger.
+ * @param newArtifact the new artifact got by Rational Scavenger.
+ * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is EnergyCrystal.
+ */
+Result compareOwnedEnergyCrystal(int power1, Artifact newArtifact) {
+    return switch(newArtifact) {
+        case StarChart(String dest2, int risk2, int sector2, int system2) -> Result.isHazardous;
+        case EnergyCrystal(int power2) -> compareTwoEnergyCrystals(power1, power2);
+        case InertRock(String color2) -> Result.isUnknown;
+    };
+}
+
+/** 
+ * When comparing two Energy Crystals, if the new crystal has a higher power level than the crystal they own, 
+ * the new crystal is considered VALUABLE; otherwise, it is MUNDANE.
+ * Examples:
+ *     - Given: ownedArtifact = EnergyCrystal(-1), newArtifact = EnergyCrystal(2)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(4), newArtifact = EnergyCrystal(-2)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ * @param power1 the power level of EnergyCrystal, which is Energy Crystal already owned by Rational Scavenger.
+ * @param power2 the power level of EnergyCrystal, which is the new Energy Crystal got by Rational Scavenger.
+ * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when both EnergyCrystal.
+ */
+Result compareTwoEnergyCrystals(int power1, int power2) {
+    if (power1 < power2) {
+        return Result.isValuable;
+    } else {
+        return Result.isMundane;
+    }
+}
+
+/** 
+ * Rational Scavenger: When ownedArtifact is InertRock, analysis a newArtifact.
+ * If the new artifact is a StarChart, return isUnknown;  
+ * If the new artifact is an EnergyCrystal, return isUnknown; 
+ * If the new artifact is an InertRock, compare their color.
+ * Examples:
+ *     - Given: ownedArtifact = InertRock("black"), newArtifact = InertRock("black")
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
+ *          Expect: isIncompatible
+ *     - Given: ownedArtifact = InertRock("yellow"), newArtifact = StarChart("G", -3, -1, 6)
+ *          Expect: isUnknown
+ *     - Given: ownedArtifact = InertRock("green"), newArtifact = EnergyCrystal(-3)
+ *          Expect: isUnknown
+ * @param color1 the color of InertRock, which is the Inert Rock already owned by Rational Scavenger.
+ * @param newArtifact the new artifact got by Rational Scavenger.
+ * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is InertRock.
+ */
+Result compareOwnedInertRock(String color1, Artifact newArtifact) {
+    return switch(newArtifact) {
+        case StarChart(String dest2, int risk2, int sector2, int system2) -> Result.isUnknown;
+        case EnergyCrystal(int power2) -> Result.isUnknown;
+        case InertRock(String color2) -> compareTwoInertRocksRationalScavenger(color1, color2);
+    };
+}
+
+/** 
+ * When comparing two Inert Rocks, if they are the same color, the new rock is considered MUNDANE. 
+ * If their colors are different, they are INCOMPATIBLE.
+ * Examples:
+ *     - Given: ownedArtifact = InertRock("black"), newArtifact = InertRock("black")
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
+ *          Expect: isIncompatible
+ * @param color1 the color of InertRock, which is the Inert Rock already owned by Rational Scavenger.
+ * @param color2 the color of InertRock, which is the new Inert Rock got by Rational Scavenger.
+ * @return return the result through Rational Scavenger's comparative analysis of the newArtifact and the ownedArtifact when both InertRock.
+ */
+Result compareTwoInertRocksRationalScavenger(String color1, String color2) {
+    if (Equals(color1, color2)) {
+        return Result.isMundane;
+    } else {
+        return Result.isIncompatible;
+    }
 }
 
 
@@ -181,9 +327,7 @@ Result compareNewEnergyCrystal(Artifact ownedArtifact, int power2) {
  * Risk Taker Scavenger: When newArtifact is InertRock, analysis the ownedArtifact.
  * newArtifact is InertRock and ownedArtifact is StarChart: return isMundane;
  * newArtifact is InertRock and ownedArtifact is EnergyCrystal: return isUnknown.
- * newArtifact is InertRock and ownedArtifact is InertRock: comparing two Inert Rocks, 
- * if they are the same color, return isMundan; otherwise, a coin flip determines the outcome: 
- * there’s a 50% chance the new rock is considered valuable, and incompatible otherwise.
+ * newArtifact is InertRock and ownedArtifact is InertRock: comparing two Inert Rocks.
  * Examples:
  *     - Given: ownedArtifact = StarChart("A", 0, -3, -2), newArtifact = InertRock("yellow")
  *          Expect: isMundane
@@ -207,79 +351,21 @@ Result compareNewInertRock(Artifact ownedArtifact, String color2) {
     };
 }
 
-
 /** 
- * Rational Scavenger: When ownedArtifact is StarChart, analysis a newArtifact.
- * If the new artifact is a StarChart, compare their risks.
- * If the new artifact is an EnergyCrystal, return isMundane;
- * If the new artifact is an InertRock, return isUnknown.
+ * Risk Taker Scavenger: comparing two Inert Rocks. 
+ * If they are the same color, return isMundan; 
+ * otherwise, a coin flip determines the outcome: there’s a 50% chance the new rock is considered valuable, and incompatible otherwise.
  * Examples:
- *     - Given: ownedArtifact = StarChart("A", 8, 8, 8), newArtifact = StarChart("C", -1, 7, 9)
- *          Expect: isValuable
- *     - Given: ownedArtifact = StarChart("C", -2, 4, 8), newArtifact = StarChart("S", 7, -5, 9)
+ *     - Given: ownedArtifact = InertRock("blue"), newArtifact = InertRock("blue")
  *          Expect: isMundane
- *     - Given: ownedArtifact = StarChart("F", 0, 0, 0), newArtifact = StarChart("H", 0, 7, -3)
- *          Expect: isMundane
- *     - Given: ownedArtifact = StarChart("A", 2, -1, 9), newArtifact = EnergyCrystal(0)
- *          Expect: isMundane
- *     - Given: ownedArtifact = StarChart("G", -3, -1, 6), newArtifact = InertRock("yellow")
- *          Expect: isUnknown
- * @param risk1 
- * @param newArtifact 
- * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is StarChart.
+ *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
+ *          Expect: isValuable or isIncompatible
+ *     - Given: ownedArtifact = InertRock("black"), newArtifact = InertRock("blue")
+ *          Expect: isValuable or isIncompatible
+ * @param color1 the color of InertRock, which is the Inert Rock already owned by Risk Taker Scavenger.
+ * @param color2 the color of InertRock, which is new Inert Rock got by Risk Taker Scavenger.
+ * @return return the result through comparative analysis of comparing two Inert Rocks.
  */
-Result compareOwnedStarChart(int risk1, Artifact newArtifact) {
-    return switch(newArtifact) {
-        case StarChart(String dest2, int risk2, int sector2, int system2) -> compareTwoStarCharts(risk1, risk2);
-        case EnergyCrystal(int power2) -> Result.isMundane;
-        case InertRock(String color2) -> Result.isUnknown;
-    };
-}
-
-Result compareOwnedEnergyCrystal(int power1, Artifact newArtifact) {
-    return switch(newArtifact) {
-        case StarChart(String dest2, int risk2, int sector2, int system2) -> Result.isHazardous;
-        case EnergyCrystal(int power2) -> compareTwoEnergyCrystals(power1, power2);
-        case InertRock(String color2) -> Result.isUnknown;
-    };
-}
-
-Result compareOwnedInertRock(String color1, Artifact newArtifact) {
-    return switch(newArtifact) {
-        case StarChart(String dest2, int risk2, int sector2, int system2) -> Result.isUnknown;
-        case EnergyCrystal(int power2) -> Result.isUnknown;
-        case InertRock(String color2) -> compareTwoInertRocksRationalScavenger(color1, color2);
-    };
-}
-
-Result compareTwoStarCharts(int risk1, int risk2) {
-    if (risk1 > risk2) {
-        return Result.isValuable;
-    } else {
-        return Result.isMundane;
-    }
-}
-
-// power1 is owned, power2 is new
-Result compareTwoEnergyCrystals(int power1, int power2) {
-    if (power1 < power2) {
-        return Result.isValuable;
-    } else {
-        return Result.isMundane;
-    }
-}
-
-// RationalScavenger
-Result compareTwoInertRocksRationalScavenger(String color1, String color2) {
-    if (Equals(color1, color2)) {
-        return Result.isMundane;
-    } else {
-        return Result.isIncompatible;
-    }
-}
-
-// RiskTakerScavenger 
-// 比较两个惰性岩石InertRock：如果颜色color相同 → isMundane；如果颜色不同 → 掷硬币决定：50% 概率是 isValuable，50%是isIncompatible
 Result compareTwoInertRocksRiskTakerScavenger(String color1, String color2) {
     if (Equals(color1, color2)) {
         return Result.isMundane;
@@ -288,7 +374,11 @@ Result compareTwoInertRocksRiskTakerScavenger(String color1, String color2) {
     }
 }
 
-//掷硬币决定：50% 概率是 isValuable，50%是isIncompatible。 RandomNumber(0, 2)
+/** 
+ * When the colors of two Inert Rocks are different, Risk Taker Scavenger use coin flip determines the outcome: 
+ * there’s a 50% chance the new rock is considered valuable, and incompatible otherwise.
+ * @return return isValuable or isIncompatible in random.
+ */
 Result coinFlip() {
     if (RandomNumber(0, 2) == 0) {
         return Result.isValuable;
@@ -517,3 +607,5 @@ boolean isIncompatible(Result result) {
 boolean isUnknown(Result result) {
     return result == Result.isUnknown;
 }
+
+
