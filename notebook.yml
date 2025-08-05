@@ -1,13 +1,13 @@
 time-on-task:
 - task: "Part 1"
-  time: 290
+  time: 350
 - task: "Part 2"
-  time: 
+  time: 0
 - task: "Part 3"
-  time: 
+  time: 0
 - task: "Part 4"
-  time: 
-sessions:
+  time: 0
+sessions: 
 - start: 2025-08-04 20:10
   end: 2025-08-04 21:10
   notes: "worked on part 1"
@@ -23,3 +23,6 @@ sessions:
 - start: 2025-08-05 15:30
   end: 2025-08-05 16:20
   notes: "Write some tests in part1"
+- start: 2025-08-05 16:35
+  end: 2025-08-05 17:35
+  notes: "Add some tests in part1"
