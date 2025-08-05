@@ -1,6 +1,6 @@
 time-on-task:
 - task: "Part 1"
-  time: 180
+  time: 290
 - task: "Part 2"
   time: 
 - task: "Part 3"
@@ -20,3 +20,6 @@ sessions:
 - start: 2025-08-05 14:10
   end: 2025-08-05 15:10
   notes: "worked on Risk Taker Scavenger in part 1"
+- start: 2025-08-05 15:30
+  end: 2025-08-05 16:20
+  notes: "Write some tests in part1"

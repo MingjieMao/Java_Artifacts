@@ -80,15 +80,29 @@ sealed interface Artifact permits StarChart, EnergyCrystal, InertRock {}
  * through comparative analysis of the newArtifact and the ownedArtifact, 
  * returns the results, which can be valuable, hazardous, mundane, incompatible, or unknown.
  * Examples:
- *     - Given: ownedArtifact = StarChart("A", 2, 8, 8), newArtifact = StarChart("B", 4, 7, 9)
- *          Expect: isMundane
- *     - Given: ownedArtifact = EnergyCrystal(1), newArtifact = EnergyCrystal(2)
+ *     - Given: ownedArtifact = StarChart("A", 8, 8, 8), newArtifact = StarChart("C", -1, 7, 9)
  *          Expect: isValuable
+ *     - Given: ownedArtifact = StarChart("C", 2, 4, 8), newArtifact = StarChart("S", 0, -5, 9)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("F", 0, 0, 0), newArtifact = StarChart("H", 0, 7, -3)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(-1), newArtifact = EnergyCrystal(2)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(4), newArtifact = EnergyCrystal(-2)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("black"), newArtifact = InertRock("black")
+ *          Expect: isMundane
  *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
  *          Expect: isIncompatible
- *     - Given: ownedArtifact = EnergyCrystal(2), newArtifact = new StarChart("A", 2, 8, 8)
+ *     - Given: ownedArtifact = EnergyCrystal(-2), newArtifact = new StarChart("A", -1, 4, -8)
  *          Expect: isHazardous
- *     - Given: ownedArtifact = InertRock("blue"), newArtifact = new EnergyCrystal(3)
+ *     - Given: ownedArtifact = new StarChart("A", 2, -1, 9), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("yellow"), newArtifact = new EnergyCrystal(11)
+ *          Expect: isUnknown
+ *     - Given: ownedArtifact = InertRock("green"), newArtifact = new EnergyCrystal(-3)
  *          Expect: isUnknown
  * Design strategy: Template 
  * @param ownedArtifact the artifact already owned by Rational Scavenger.
@@ -111,8 +125,27 @@ Result rationalScavengerAnalysis(Artifact ownedArtifact, Artifact newArtifact) {
  * returns the results, which can be valuable, hazardous, mundane, incompatible, or unknown.
  * Examples:
  *     - Given: ownedArtifact = StarChart("A", 2, 8, 8), newArtifact = StarChart("B", 4, 7, 9)
- *          Expect: 
- * 
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(2), newArtifact = StarChart("B", 4, 7, 9)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = InertRock("blue"), newArtifact = StarChart("B", 4, 7, 9)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = StarChart("A", 2, 8, 8), newArtifact = EnergyCrystal(2)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("A", 2, 8, 8), newArtifact = InertRock("blue")
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(-1), newArtifact = EnergyCrystal(2)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(3), newArtifact = EnergyCrystal(-1)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("blue"), newArtifact = InertRock("blue")
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
+ *          Expect: isValuable or isIncompatible
+ *     - Given: ownedArtifact = InertRock("blue"), newArtifact = new EnergyCrystal(0)
+ *          Expect: isUnknown
  * Design strategy: Template 
  * @param ownedArtifact the artifact already owned by Risk Taker Scavenger.
  * @param newArtifact the new artifact Risk Taker Scavenger got.
@@ -247,27 +280,82 @@ Result coinFlip() {
     }
 }
 
-
+/**
+ * Rational Scavenger.
+ *     - Given: ownedArtifact = StarChart("A", 8, 8, 8), newArtifact = StarChart("C", -1, 7, 9)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = StarChart("C", 2, 4, 8), newArtifact = StarChart("S", 0, -5, 9)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = StarChart("F", 0, 0, 0), newArtifact = StarChart("H", 0, 7, -3)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(-1), newArtifact = EnergyCrystal(2)
+ *          Expect: isValuable
+ *     - Given: ownedArtifact = EnergyCrystal(4), newArtifact = EnergyCrystal(-2)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("black"), newArtifact = InertRock("black")
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("red"), newArtifact = InertRock("blue")
+ *          Expect: isIncompatible
+ *     - Given: ownedArtifact = EnergyCrystal(-2), newArtifact = new StarChart("A", -1, 4, -8)
+ *          Expect: isHazardous
+ *     - Given: ownedArtifact = new StarChart("A", 2, -1, 9), newArtifact = EnergyCrystal(0)
+ *          Expect: isMundane
+ *     - Given: ownedArtifact = InertRock("yellow"), newArtifact = new EnergyCrystal(11)
+ *          Expect: isUnknown
+ *     - Given: ownedArtifact = InertRock("green"), newArtifact = new EnergyCrystal(-3)
+ *          Expect: isUnknown
+ */
 void main() {
-    Artifact ownedArtifact1 = new StarChart("A", 2, 8, 8);
-    Artifact newArtifact1 = new StarChart("B", 4, 7, 9);
+    //Rational Scavenger
+    Artifact ownedArtifact1 = new StarChart("A", 8, 8, 8);
+    Artifact newArtifact1 = new StarChart("C", -1, 7, 9);
     println(rationalScavengerAnalysis(ownedArtifact1, newArtifact1));
 
-    Artifact ownedArtifact2 = new EnergyCrystal(1);
-    Artifact newArtifact2 = new EnergyCrystal(2);
+    Artifact ownedArtifact2 = new StarChart("C", 2, 4, 8);
+    Artifact newArtifact2 = new StarChart("S", 0, -5, 9);
     println(rationalScavengerAnalysis(ownedArtifact2, newArtifact2));
 
-    Artifact ownedArtifact3 = new InertRock("red");
-    Artifact newArtifact3 = new InertRock("blue");
+    Artifact ownedArtifact3 = new StarChart("F", 0, 0, 0);
+    Artifact newArtifact3 = new StarChart("H", 0, 7, -3);
     println(rationalScavengerAnalysis(ownedArtifact3, newArtifact3));
 
-    Artifact ownedArtifact4 = new EnergyCrystal(2);
-    Artifact newArtifact4 = new StarChart("A", 2, 8, 8);
+    Artifact ownedArtifact4 = new EnergyCrystal(-1);
+    Artifact newArtifact4 = new EnergyCrystal(2);
     println(rationalScavengerAnalysis(ownedArtifact4, newArtifact4));
 
-    Artifact ownedArtifact5 = new InertRock("blue");
-    Artifact newArtifact5 = new EnergyCrystal(3);
+    Artifact ownedArtifact5 = new EnergyCrystal(4);
+    Artifact newArtifact5 = new EnergyCrystal(-2);
     println(rationalScavengerAnalysis(ownedArtifact5, newArtifact5));
+
+    Artifact ownedArtifact6 = new EnergyCrystal(0);
+    Artifact newArtifact6 = new EnergyCrystal(0);
+    println(rationalScavengerAnalysis(ownedArtifact6, newArtifact6));
+
+    Artifact ownedArtifact7 = new InertRock("black");
+    Artifact newArtifact7 = new InertRock("black");
+    println(rationalScavengerAnalysis(ownedArtifact7, newArtifact7));
+
+    Artifact ownedArtifact8 = new InertRock("red");
+    Artifact newArtifact8 = new InertRock("blue");
+    println(rationalScavengerAnalysis(ownedArtifact8, newArtifact8));
+
+    Artifact ownedArtifact9 = new EnergyCrystal(-2);
+    Artifact newArtifact9 = new StarChart("A", -1, 4, -8);
+    println(rationalScavengerAnalysis(ownedArtifact9, newArtifact9));
+
+    Artifact ownedArtifact10 = new StarChart("A", 2, -1, 9);
+    Artifact newArtifact10 = new EnergyCrystal(0);
+    println(rationalScavengerAnalysis(ownedArtifact10, newArtifact10));
+
+    Artifact ownedArtifact11 = new InertRock("yellow");
+    Artifact newArtifact11 = new EnergyCrystal(11);
+    println(rationalScavengerAnalysis(ownedArtifact11, newArtifact11));
+
+    Artifact ownedArtifact12 = new InertRock("green");
+    Artifact newArtifact12 = new EnergyCrystal(-3);
+    println(rationalScavengerAnalysis(ownedArtifact12, newArtifact12));
 }
 
 void testTwoStarChartExample() {
