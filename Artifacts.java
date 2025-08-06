@@ -389,7 +389,7 @@ Result compareTwoInertRocksRiskTakerScavenger(String color1, String color2) {
  * @return return isValuable or isIncompatible in random.
  */
 Result coinFlip() {
-    if (RandomNumber(0, 2) == 0) {
+    if (Equals(RandomNumber(0, 2), 0)) {
         return Result.isValuable;
     } else {
         return Result.isIncompatible;
@@ -633,16 +633,6 @@ boolean isUnknown(Result result) {
 record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {}
 
 /**
- * Represents the outcome of exploring asteroid,
- * and return the updated scavenger and the artifact in cargo.
- * Examples:
- * 
- * @param scavenger - updated the scavenger after exploration
- * @param cargo 
- */
-record ExplorationOutcome(Scavenger scavenger, Artifact cargo) {}
-
-/**
  * Computes the result of a scavenger finding an artifact on an asteroid. 
  * Use the analysis protocol for the scavenger to get the evaluation of the new artifact,
  * then apply the following rules to determine the final state of the scavenger and their cargo:
@@ -654,40 +644,40 @@ record ExplorationOutcome(Scavenger scavenger, Artifact cargo) {}
  * - If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
  * The function returns a Pair of the scavenger's new state and the artifact left behind.
  */
-ExplorationOutcome exploreAsteroid(Scavenger scavenger, Artifact foundArtifact) {
+Pair<Scavenger, Artifact> exploreAsteroid(Scavenger scavenger, Artifact foundArtifact) {
     Artifact ownedArtifact = scavenger.cargo;
-    Result result = fuucionApply(scavenger.analysisFunc, ownedArtifact, foundArtifact);
+    Result result = functionApply(scavenger.analysisFunc, ownedArtifact, foundArtifact);
     return switch(result) {
         case isValuable -> swapArtifacts(scavenger, foundArtifact);
-        case isMundan, isIncompatible, isUnknown -> ignoreArtifacts(scavenger, foundArtifact);
-        case isHazardous -> hazardousArtifacts(scavenger, foundArtifact);
+        case isMundane, isIncompatible, isUnknown -> ignoreArtifacts(scavenger, foundArtifact);
+        case isHazardous -> handleHazardous(scavenger, foundArtifact);
     }
 }
-
-ExplorationOutcome swapArtifacts(Scavenger scavenger, Artifact found) {
-    Scavenger updated = new Scavenger(scavenger.name, found, scavenger.analysisFunc);
-    Artifact owned = scavenger.cargo;
-    return new ExplorationOutcome(scavenger, found);
-}
-
-ExplorationOutcome ignoreArtifacts(Scavenger scavenger, Artifact found) {
-    return new ExplorationOutcome(updated, owned);
-}
-
-ExplorationOutcome hazardousArtifacts(Scavenger scavenger, Artifact found) {
-    if (shieldHolds) {
-        Scavenger updated = new Scavenger(scavenger.name, found, scavenger.analysisFunc);
-        return new ExplorationOutcome(updated, owned);
-    } else {
-        return new ExplorationOutcome(updated, owned);
-    }
-}
-
-
 
 Result functionApply(BiFunction<Artifact,Artifact,Result> myFunc, Artifact ownedArtifact, Artifact newArtifact) {
     return myFunc.apply(ownedArtifact, newArtifact);
 }
+
+Pair<Scavenger, Artifact> swapArtifacts(Scavenger scavenger, Artifact foundArtifact) {
+    Scavenger updated = new Scavenger(scavenger.name, foundArtifact, scavenger.analysisFunc);
+    Artifact owned = scavenger.cargo;
+    return new Pair<Scavenger, Artifact>(updated, foundArtifact);
+}
+
+Pair<Scavenger, Artifact> ignoreArtifacts(Scavenger scavenger, Artifact foundArtifact) {
+    return new Pair<Scavenger, Artifact>(scavenger, ownedArtifact);
+}
+
+Pair<Scavenger, Artifact> handleHazardous(Scavenger scavenger, Artifact foundArtifact) {
+    if (Equals(RandomNumber(0, 2), 0)) {
+        return swapArtifacts(scavenger, foundArtifact);
+    } else {
+        Artifact destroyed = new InertRock("dull grey");
+        Scavenger updated = new Scavenger(scavenger.name, destroyed, scavenger.analysisFunc);
+        return new Pair<Scavenger, Artifact>(updated, foundArtifact);
+    }
+}
+
 
 void main() {
     Artifact ownedArtifact = new EnergyCrystal(0);

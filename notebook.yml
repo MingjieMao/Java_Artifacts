@@ -2,7 +2,7 @@ time-on-task:
 - task: "Part 1"
   time: 460
 - task: "Part 2"
-  time: 0
+  time: 120
 - task: "Part 3"
   time: 0
 - task: "Part 4"
@@ -38,3 +38,9 @@ sessions:
 - start: 2025-08-06 12:20
   end: 2025-08-06 13:20
   notes: "worked on part4 in marble's directions"
+- start: 2025-08-06 17:00
+  end: 2025-08-06 18:00
+  notes: "worked on part2"
+- start: 2025-08-06 18:30
+  end: 2025-08-06 19:30
+  notes: "continue worked on part2"
