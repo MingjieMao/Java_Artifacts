@@ -4,6 +4,8 @@ import static comp1110.lib.Functions.*;
 
 import static comp1110.testing.Comp1110Unit.*;
 
+// Part 1
+
 // [R] is type for the analysis result
 /**
  * Represents the result of comparing a new artifact with an owned artifact.
@@ -25,8 +27,8 @@ enum Result {
  * A StarChart is a Artifact characterized by its destination, risk factor, 
  * and origin point (defined by sector and system).
  * Examples:
- * - A StarChart to "Canberra" with risk 2 from sector 3, system 4
- * - A StarChart to "Sydney" with risk 1 from sector 4, system 7
+ * - A StarChart to "C" with risk 2 from sector 3, system 4
+ * - A StarChart to "S" with risk 1 from sector 4, system 7
  * @param dest - destination of StarChart
  * @param risk - risk factor of StarChart (0 is safest)
  * @param sector - the sector of origin point about StarChart
@@ -92,6 +94,7 @@ sealed interface Artifact permits StarChart, EnergyCrystal, InertRock {}
  *          Expect: isUnknown
  *     - Given: ownedArtifact = InertRock("green"), newArtifact = EnergyCrystal(-3)
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param ownedArtifact the artifact already owned by Rational Scavenger.
  * @param newArtifact the new artifact Rational Scavenger got.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact.
@@ -120,6 +123,7 @@ Result rationalScavengerAnalysis(Artifact ownedArtifact, Artifact newArtifact) {
  *          Expect: isMundane
  *     - Given: ownedArtifact = StarChart("G", -3, -1, 6), newArtifact = InertRock("yellow")
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param risk1 the risk factor of StarChart, which is Star Chart already owned by Rational Scavenger.
  * @param newArtifact the new artifact got by Rational Scavenger.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is StarChart.
@@ -170,6 +174,7 @@ Result compareTwoStarCharts(int risk1, int risk2) {
  *          Expect: isHazardous 
  *     - Given: ownedArtifact = EnergyCrystal(-3), newArtifact = InertRock("green")
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param power1 the power level of EnergyCrystal, which is Energy Crystal already owned by Rational Scavenger.
  * @param newArtifact the new artifact got by Rational Scavenger.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is EnergyCrystal.
@@ -218,6 +223,7 @@ Result compareTwoEnergyCrystals(int power1, int power2) {
  *          Expect: isUnknown
  *     - Given: ownedArtifact = InertRock("green"), newArtifact = EnergyCrystal(-3)
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param color1 the color of InertRock, which is the Inert Rock already owned by Rational Scavenger.
  * @param newArtifact the new artifact got by Rational Scavenger.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when ownedArtifact is InertRock.
@@ -281,6 +287,7 @@ Result compareTwoInertRocksRationalScavenger(String color1, String color2) {
  *          Expect: isValuable or isIncompatible
  *     - Given: ownedArtifact = InertRock("green"), newArtifact = EnergyCrystal(0)
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param ownedArtifact the artifact already owned by Risk Taker Scavenger.
  * @param newArtifact the new artifact Risk Taker Scavenger got.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact.
@@ -311,6 +318,7 @@ Result riskTakerScavengerAnalysis(Artifact ownedArtifact, Artifact newArtifact) 
  *          Expect: isMundane
  *     - Given: ownedArtifact = InertRock("green"), newArtifact = new EnergyCrystal(0)
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param ownedArtifact the artifact already owned by Risk Taker Scavenger.
  * @param power2 the power level of EnergyCrystal, which is new Energy Crystal got by Risk Taker Scavenger.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when newArtifact is EnergyCrystal.
@@ -339,6 +347,7 @@ Result compareNewEnergyCrystal(Artifact ownedArtifact, int power2) {
  *          Expect: isValuable or isIncompatible
  *     - Given: ownedArtifact = EnergyCrystal(0), newArtifact = new InertRock("green") 
  *          Expect: isUnknown
+ * Design strategy: template application
  * @param ownedArtifact the artifact already owned by Risk Taker Scavenger.
  * @param color2 the color of InertRock, which is new Inert Rock got by Risk Taker Scavenger.
  * @return return the result through comparative analysis of the newArtifact and the ownedArtifact when newArtifact is InertRock.
@@ -609,3 +618,80 @@ boolean isUnknown(Result result) {
 }
 
 
+// Part 2
+
+/**
+ * Each scavenger has a name, a single artifact in their cargo hold, 
+ * and a unique personal analysis protocol for evaluating artifacts, which is a BiFunction. 
+ * Examples:
+ * - 
+ * - A StarChart to "Sydney" with risk 1 from sector 4, system 7
+ * @param name - name of scavenger
+ * @param cargo - a single artifact in their cargo hold
+ * @param analysisFunc - a unique personal analysis protocol for evaluating artifacts, which is a BiFunction
+ */
+record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {}
+
+/**
+ * Represents the outcome of exploring asteroid,
+ * and return the updated scavenger and the artifact in cargo.
+ * Examples:
+ * 
+ * @param scavenger - updated the scavenger after exploration
+ * @param cargo 
+ */
+record ExplorationOutcome(Scavenger scavenger, Artifact cargo) {}
+
+/**
+ * Computes the result of a scavenger finding an artifact on an asteroid. 
+ * Use the analysis protocol for the scavenger to get the evaluation of the new artifact,
+ * then apply the following rules to determine the final state of the scavenger and their cargo:
+ * - If the result is VALUABLE, the scavenger swaps artifacts.
+ * - If MUNDANE, the scavenger ignores the new artifact.
+ * - If HAZARDOUS, there is a 50% chance the ship's shields hold.
+ *   If they hold, the scavenger swaps. 
+ *   If they fail, the scavenger's current cargo is destroyed and replaced with a Inert Rock of color "dull grey".
+ * - If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
+ * The function returns a Pair of the scavenger's new state and the artifact left behind.
+ */
+ExplorationOutcome exploreAsteroid(Scavenger scavenger, Artifact foundArtifact) {
+    Artifact ownedArtifact = scavenger.cargo;
+    Result result = fuucionApply(scavenger.analysisFunc, ownedArtifact, foundArtifact);
+    return switch(result) {
+        case isValuable -> swapArtifacts(scavenger, foundArtifact);
+        case isMundan, isIncompatible, isUnknown -> ignoreArtifacts(scavenger, foundArtifact);
+        case isHazardous -> hazardousArtifacts(scavenger, foundArtifact);
+    }
+}
+
+ExplorationOutcome swapArtifacts(Scavenger scavenger, Artifact found) {
+    Scavenger updated = new Scavenger(scavenger.name, found, scavenger.analysisFunc);
+    Artifact owned = scavenger.cargo;
+    return new ExplorationOutcome(scavenger, found);
+}
+
+ExplorationOutcome ignoreArtifacts(Scavenger scavenger, Artifact found) {
+    return new ExplorationOutcome(updated, owned);
+}
+
+ExplorationOutcome hazardousArtifacts(Scavenger scavenger, Artifact found) {
+    if (shieldHolds) {
+        Scavenger updated = new Scavenger(scavenger.name, found, scavenger.analysisFunc);
+        return new ExplorationOutcome(updated, owned);
+    } else {
+        return new ExplorationOutcome(updated, owned);
+    }
+}
+
+
+
+Result functionApply(BiFunction<Artifact,Artifact,Result> myFunc, Artifact ownedArtifact, Artifact newArtifact) {
+    return myFunc.apply(ownedArtifact, newArtifact);
+}
+
+void main() {
+    Artifact ownedArtifact = new EnergyCrystal(0);
+    Artifact newArtifact = new EnergyCrystal(5);
+    Result result = functionApply(analysisFunc, ownedArtifact, newArtifact);
+    println(result);
+}
