@@ -880,11 +880,11 @@ String describeArtifact(Artifact artifact) {
 Artifact parseRationalScavengerLog(String log) {
     // get three part in "ASTEROID | [ownedArtifact] | [foundArtifact]"
     int firstBar = IndexOf("|", log, 0);
-    String encounter = Substring(log, 0, firstSep).trim();
+    String encounter = Substring(log, 0, firstBar).trim();
 
-    int secondSep = IndexOf("|", log, firstSep + 1);
-    String ownedStr = Substring(log, firstSep + 1, secondSep).trim();
-    String otherStr = Substring(log, secondSep + 1, Length(log)).trim();
+    int secondBar = IndexOf("|", log, firstBar + 1);
+    String ownedStr = Substring(log, firstBar + 1, secondBar).trim();
+    String otherStr = Substring(log, secondBar + 1, Length(log)).trim();
 
     // transfer from String to Artifact
     Artifact owned = parseArtifact(ownedStr);
@@ -946,7 +946,7 @@ Artifact parseArtifact(String s) {
         int sectorStart = IndexOf("SEC=", s, semi2) + 4;
         int semi3 = IndexOf(";", s, sectorStart);
         String sectorStr = Substring(s, sectorStart, semi3);
-        int sector = StringToInt(secStr);
+        int sector = StringToInt(sectorStr);
 
         // get system (after "SYS=" to the end of string)
         int systemStart = IndexOf("SYS=", s, semi3) + 4;
@@ -974,4 +974,15 @@ Artifact parseArtifact(String s) {
     }
 
     throw new IllegalArgumentException("Unknown artifact format: " + s);
+}
+
+/**
+ * Format: FINAL CARGO: [final_artifact]
+ * Example Output: FINAL CARGO: EnergyCrystal:POWER=900
+ */
+void main() {
+    String input = readLine;
+    Artifact finalArtifact = parseRationalScavengerLog(input);
+    String finalDecription = describeArtifact(finalArtifact);
+    println("FINAL CARGO: " + finalDecription);
 }
