@@ -672,17 +672,24 @@ void main() {
 }
 
 
-// Part 2
+// Part 2: The Scavenger Fleet
+// Scenario 1: Exploring an Asteroid
 
 /**
- * Each scavenger has a name, a single artifact in their cargo hold, 
- * and a unique personal analysis protocol for evaluating artifacts, which is a BiFunction. 
+ * Represents a scavenger, and each scavenger has:
+ * - A unique name,
+ * - A single artifact in their cargo hold,
+ * - A unique personal analysis protocol for evaluating artifacts, which is a BiFunction.
  * Examples:
- * - 
- * - A StarChart to "Sydney" with risk 1 from sector 4, system 7
- * @param name - name of scavenger
- * @param cargo - a single artifact in their cargo hold
- * @param analysisFunc - a unique personal analysis protocol for evaluating artifacts, which is a BiFunction
+ * Scavenger s1 = new Scavenger("Jessica", new StarChart("Sydney", 1, 4, 7), Artifacts::rationalScavengerAnalysis);
+ * Scavenger s2 = new Scavenger("Alex", new EnergyCrystal(5), Artifacts::riskTakerScavengerAnalysis);
+ * Scavenger s3 = new Scavenger("Luna", new InertRock("blue"), Artifacts::rationalScavengerAnalysis);
+ * @param name The unique name of the scavenger
+ * @param cargo The single artifact in the scavenger's cargo hold
+ * @param analysisFunc The scavenger's personal evaluation protocol implemented as a BiFunction:
+ *                     - First Artifact: the ownedArtifact
+ *                     - Second Artifact: the new foundArtifact
+ *                     - Returns: a Result indicating the evaluation outcome
  */
 record Scavenger(String name, Artifact cargo, BiFunction<Artifact, Artifact, Result> analysisFunc) {}
 
@@ -815,6 +822,9 @@ void testDifferentStrategies() {
     println("Risk Taker Scavenger: " + riskTakerScavengerResult4.first().cargo());  // InertRock("red") or InertRock("blue")
 }
 
+
+// Scenario 2: Trading at a Starport
+
 /**
  * Computes the result of two scavengers meeting to trade.
  * A trade occurs only if Scavenger A evaluates ScavengerB's artifact as VALUABLE (using A's personal protocol),
@@ -840,4 +850,82 @@ void testTradeAtStarport() {
     println(getName(rationalScavenger) + " has: " + getCargo(result.first()));
     println(getName(riskTakerScavenger) + " has: " + getCargo(result.second()));
 }
+
+// Part 3 
+
+/**
+ * 1. Syntax for describing an Artifact
+ * Takes an artifact and returns a string of its details, formatted exactly as required for the log entries.
+ * - Star Chart: "StarChart:destination;RISK=risk;SEC=sector;SYS=system"
+ * - Energy Crystal: "EnergyCrystal:POWER=power"
+ * - Inert Rock: "InertRock:COLOR=color"
+ */
+String describeArtifact(Artifact artifact) {
+   return switch (artifact) {
+    case StarChart sc -> "StarChart:" + sc.dest() + ";RISK=" + sc.risk() + ";SEC=" + sc.sector() + ";SYS=" + sc.system();
+    case EnergyCrystal ec -> "EnergyCrystal:POWER=" + ec.power();
+    case InertRock ir -> "InertRock:COLOR=" + ir.color(); 
+    default -> throw new IllegalArgumentException("Unknown artifact type: " + artifact);
+   }
+}
+
+ /**
+  * 2. Syntax for a Log Entry
+  * Parses a log string from a Rational Scavenger that takes one of the following forms:
+  * - ASTEROID | [ownedArtifact] | [foundArtifact]
+  * - TRADING_POST | [ownedArtifact] | [otherScavengersArtifact]
+  * Then it simulates the encounter and returns the
+  * artifact the Rational Scavenger possesses *after*
+  * the log entry
+  */
+Artifact parseRationalScavengerLog(String log) {
+    // get ASTEROID or TRADING_POST in "ASTEROID | [ownedArtifact] | [foundArtifact]"
+    int firstBar = IndexOf("|", log, 0);
+    String encounter = Substring(log, 0, firstSep).trim();
+
+    // get [ownedArtifact]
+    int secondSep = IndexOf("|", log, firstSep + 1);
+    String ownedStr = Substring(log, firstSep + 1, secondSep).trim();
+
+    // get [foundArtifact]
+    String otherStr = Substring(log, secondSep + 1, Length(log)).trim();
+
+    // 把 ownedStr 解析成 Artifact 对象
+    Artifact owned = parseArtifact(ownedStr);
+
+    // 把 otherStr 解析成 Artifact 对象
+    Artifact other = parseArtifact(otherStr);
+
+    // If ASTEROID，ues rationalScavengerAnalysis
+    boolean isAsteroid = Equals(encounter, "ASTEROID");
+    Result asteroidResult = rationalScavengerAnalysis(owned, other);
+
+ }
+
+
+Artifact encounter(String encounterType, Artifact owned, Artifact other) {
+    if (Equals(encounterType, "ASTEROID")) {
+        return handleAsteroidEncounter(owned, other);
+    } else {
+        return handleTradingPostEncounter(owned, other);
+    }
+}
+
+// Encounter Asteroid
+Artifact handleAsteroidEncounter(Artifact owned, Artifact found) {
+    Result result = rationalScavengerAnalysis(owned, found);
+    if (isValuable(result)) {
+        return found;
+    } else {
+        return owned;
+    }
+}
+
+// Encounter TradingPost
+Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
+    Result riskTakerResult = riskTakerScavengerAnalysis(other, owned);
+    Result rationalResult = rationalScavengerAnalysis(owned, other);
+}
+
+
 
