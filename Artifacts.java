@@ -633,7 +633,7 @@ boolean isUnknown(Result result) {
 record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {}
 
 /**
- * Computes the result of a scavenger finding an artifact on an asteroid. 
+ * The function returns a Pair of the scavenger's new state and the artifact left behind.
  * Use the analysis protocol for the scavenger to get the evaluation of the new artifact,
  * then apply the following rules to determine the final state of the scavenger and their cargo:
  * - If the result is VALUABLE, the scavenger swaps artifacts.
@@ -642,11 +642,9 @@ record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Resul
  *   If they hold, the scavenger swaps. 
  *   If they fail, the scavenger's current cargo is destroyed and replaced with a Inert Rock of color "dull grey".
  * - If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
- * The function returns a Pair of the scavenger's new state and the artifact left behind.
  */
 Pair<Scavenger, Artifact> exploreAsteroid(Scavenger scavenger, Artifact foundArtifact) {
-    Artifact ownedArtifact = scavenger.cargo;
-    Result result = functionApply(scavenger.analysisFunc, ownedArtifact, foundArtifact);
+    Result result = evaluateArtifact(scavenger.analysisFunc, scavenger.cargo, foundArtifact);
     return switch(result) {
         case isValuable -> swapArtifacts(scavenger, foundArtifact);
         case isMundane, isIncompatible, isUnknown -> ignoreArtifacts(scavenger, foundArtifact);
@@ -654,22 +652,40 @@ Pair<Scavenger, Artifact> exploreAsteroid(Scavenger scavenger, Artifact foundArt
     }
 }
 
-Result functionApply(BiFunction<Artifact,Artifact,Result> myFunc, Artifact ownedArtifact, Artifact newArtifact) {
-    return myFunc.apply(ownedArtifact, newArtifact);
+/**
+ *  Use the analysis protocol for the scavenger to get the evaluation of the new artifact.
+ */
+Result evaluateArtifact(BiFunction<Artifact,Artifact,Result> protocol, Artifact ownedArtifact, Artifact foundArtifact) {
+    return protocol.apply(ownedArtifact, foundArtifact);
 }
 
+/**
+ * If the result is VALUABLE, the scavenger swaps artifacts. 
+ * Return a Pair of the scavenger's new state and the artifact left behind，which is the scavenger had before in cargo.
+ */
 Pair<Scavenger, Artifact> swapArtifacts(Scavenger scavenger, Artifact foundArtifact) {
     Scavenger updated = new Scavenger(scavenger.name, foundArtifact, scavenger.analysisFunc);
-    Artifact owned = scavenger.cargo;
-    return new Pair<Scavenger, Artifact>(updated, foundArtifact);
+    return new Pair<Scavenger, Artifact>(updated, cargo);
 }
 
+/**
+ * If MUNDANE, the scavenger ignores the new artifact.
+ * If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
+ * Return a Pair of the scavenger's new state and the artifact left behind, which is the new found artifact.
+ */
 Pair<Scavenger, Artifact> ignoreArtifacts(Scavenger scavenger, Artifact foundArtifact) {
-    return new Pair<Scavenger, Artifact>(scavenger, ownedArtifact);
+    return new Pair<Scavenger, Artifact>(scavenger, foundArtifact);
 }
 
+/**
+ * If HAZARDOUS, there is a 50% chance the ship's shields hold.
+ * - If they hold, the scavenger swaps. 
+ * - If they fail, the scavenger's current cargo is destroyed and replaced with a Inert Rock of color "dull grey".
+ *   Return a Pair of the scavenger's new state and the artifact left behind, which is the new found artifact.
+ */
 Pair<Scavenger, Artifact> handleHazardous(Scavenger scavenger, Artifact foundArtifact) {
-    if (Equals(RandomNumber(0, 2), 0)) {
+    boolean shieldHolds = Equals(RandomNumber(0, 2), 0);
+    if (shieldHolds) {
         return swapArtifacts(scavenger, foundArtifact);
     } else {
         Artifact destroyed = new InertRock("dull grey");
@@ -678,10 +694,34 @@ Pair<Scavenger, Artifact> handleHazardous(Scavenger scavenger, Artifact foundArt
     }
 }
 
+/**
+ * Applies the given analysis function to two artifacts.
+ * This is a wrapper function for applying a scavenger's analysis protocol.
+ * Example:
+ * 
+ * @param func
+ * @param a1
+ * @param a2
+ * @return
+ */
+Result functionApply(BiFunction<Artifact, Artifact, Result> func, Artifact a1, Artifact a2) {
+    return func.apply(a1, a2);
+}
 
+/**
+ * Test for Part2 Scenario 1.
+ */
 void main() {
     Artifact ownedArtifact = new EnergyCrystal(0);
     Artifact newArtifact = new EnergyCrystal(5);
+
+    BiFunction<Artifact, Artifact, Result> analysisFunc = Artifacts::rationalScavengerAnalysis;
+
+    Scavenger scavenger = new Scavenger("M", ownedArtifact, newArtifact);
     Result result = functionApply(analysisFunc, ownedArtifact, newArtifact);
     println(result);
+
+    Pair<Scavenger, Artifact> outcome = exploreAsteroid(scavenger, newArtifact);
+    println("Outcome is " + outcome.first + outcome.second);
 }
+
