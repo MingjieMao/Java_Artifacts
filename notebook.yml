@@ -2,11 +2,11 @@ time-on-task:
 - task: "Part 1"
   time: 460
 - task: "Part 2"
-  time: 120
+  time: 240
 - task: "Part 3"
   time: 0
 - task: "Part 4"
-  time: 180
+  time: 120
 sessions: 
 - start: 2025-08-04 20:10
   end: 2025-08-04 21:10
@@ -47,3 +47,6 @@ sessions:
 - start: 2025-08-07 10:00
   end: 2025-08-07 11:00
   notes: "Worked on part2, Scenario 1, fixed some problems."
+- start: 2025-08-07 12:00
+  end: 2025-08-07 13:00
+  notes: "Compelete part2, Scenario 1"

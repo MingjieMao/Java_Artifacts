@@ -495,6 +495,9 @@ void main() {
     Artifact ownedArtifact24 = new InertRock("green");
     Artifact newArtifact24 = new EnergyCrystal(0);
     println(riskTakerScavengerAnalysis(ownedArtifact24, newArtifact24));
+
+    // Test for Part2 Scenario 1.
+    testDifferentStrategies();
 }
 
 
@@ -644,16 +647,22 @@ record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Resul
  * - If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
  */
 Pair<Scavenger, Artifact> exploreAsteroid(Scavenger scavenger, Artifact foundArtifact) {
-    Result result = evaluateArtifact(scavenger.analysisFunc, scavenger.cargo, foundArtifact);
+    Result result = evaluateArtifact(scavenger.analysisFunc(), scavenger.cargo(), foundArtifact);
     return switch(result) {
         case isValuable -> swapArtifacts(scavenger, foundArtifact);
-        case isMundane, isIncompatible, isUnknown -> ignoreArtifacts(scavenger, foundArtifact);
-        case isHazardous -> handleHazardous(scavenger, foundArtifact);
-    }
+        case isMundane, isIncompatible, isUnknown -> ignoreArtifact(scavenger, foundArtifact);
+        case isHazardous -> handleHazardousArtifact(scavenger, foundArtifact);
+    };
 }
 
 /**
- *  Use the analysis protocol for the scavenger to get the evaluation of the new artifact.
+ * Use the analysis protocol for the scavenger to get the evaluation of the new artifact.
+ * Example:
+ * 
+ * @param protocol
+ * @param ownedArtifact
+ * @param foundArtifact
+ * @return
  */
 Result evaluateArtifact(BiFunction<Artifact,Artifact,Result> protocol, Artifact ownedArtifact, Artifact foundArtifact) {
     return protocol.apply(ownedArtifact, foundArtifact);
@@ -664,8 +673,8 @@ Result evaluateArtifact(BiFunction<Artifact,Artifact,Result> protocol, Artifact 
  * Return a Pair of the scavenger's new state and the artifact left behind，which is the scavenger had before in cargo.
  */
 Pair<Scavenger, Artifact> swapArtifacts(Scavenger scavenger, Artifact foundArtifact) {
-    Scavenger updated = new Scavenger(scavenger.name, foundArtifact, scavenger.analysisFunc);
-    return new Pair<Scavenger, Artifact>(updated, cargo);
+    Scavenger updated = new Scavenger(scavenger.name(), foundArtifact, scavenger.analysisFunc());
+    return new Pair<Scavenger, Artifact>(updated, scavenger.cargo());
 }
 
 /**
@@ -673,7 +682,7 @@ Pair<Scavenger, Artifact> swapArtifacts(Scavenger scavenger, Artifact foundArtif
  * If INCOMPATIBLE or UNKNOWN, the scavenger ignores the new artifact.
  * Return a Pair of the scavenger's new state and the artifact left behind, which is the new found artifact.
  */
-Pair<Scavenger, Artifact> ignoreArtifacts(Scavenger scavenger, Artifact foundArtifact) {
+Pair<Scavenger, Artifact> ignoreArtifact(Scavenger scavenger, Artifact foundArtifact) {
     return new Pair<Scavenger, Artifact>(scavenger, foundArtifact);
 }
 
@@ -683,45 +692,53 @@ Pair<Scavenger, Artifact> ignoreArtifacts(Scavenger scavenger, Artifact foundArt
  * - If they fail, the scavenger's current cargo is destroyed and replaced with a Inert Rock of color "dull grey".
  *   Return a Pair of the scavenger's new state and the artifact left behind, which is the new found artifact.
  */
-Pair<Scavenger, Artifact> handleHazardous(Scavenger scavenger, Artifact foundArtifact) {
+Pair<Scavenger, Artifact> handleHazardousArtifact(Scavenger scavenger, Artifact foundArtifact) {
     boolean shieldHolds = Equals(RandomNumber(0, 2), 0);
     if (shieldHolds) {
         return swapArtifacts(scavenger, foundArtifact);
     } else {
         Artifact destroyed = new InertRock("dull grey");
-        Scavenger updated = new Scavenger(scavenger.name, destroyed, scavenger.analysisFunc);
+        Scavenger updated = new Scavenger(scavenger.name(), destroyed, scavenger.analysisFunc());
         return new Pair<Scavenger, Artifact>(updated, foundArtifact);
     }
 }
 
 /**
- * Applies the given analysis function to two artifacts.
- * This is a wrapper function for applying a scavenger's analysis protocol.
- * Example:
- * 
- * @param func
- * @param a1
- * @param a2
- * @return
- */
-Result functionApply(BiFunction<Artifact, Artifact, Result> func, Artifact a1, Artifact a2) {
-    return func.apply(a1, a2);
-}
-
-/**
  * Test for Part2 Scenario 1.
  */
-void main() {
-    Artifact ownedArtifact = new EnergyCrystal(0);
-    Artifact newArtifact = new EnergyCrystal(5);
+void testDifferentStrategies() {
+    println("Test for Part2 Scenario 1: ");
+    Artifact lowerStarChart = new StarChart("Safe", -1, 0, 0);
+    Artifact higherStarChart = new StarChart("Danger", 8, 2, 0);
+    Artifact higherEnergyCrystal = new EnergyCrystal(8);
+    Artifact blueInertRock = new InertRock("blue");
 
-    BiFunction<Artifact, Artifact, Result> analysisFunc = Artifacts::rationalScavengerAnalysis;
+    Scavenger rationalScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::rationalScavengerAnalysis);
+    Scavenger riskTakerScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::riskTakerScavengerAnalysis);
+    println("1. Found lowerStarChart when they both owned StarChart(M, 5, 1, 7): ");
+    Pair<Scavenger, Artifact> rationalScavengerResult1 = exploreAsteroid(rationalScavengerWithStarChart, lowerStarChart);
+    Pair<Scavenger, Artifact> riskTakerScavengerResult1 = exploreAsteroid(riskTakerScavengerWithStarChart, lowerStarChart);
+    println("Rational Scavenger: " + rationalScavengerResult1.first().cargo());     // StarChart("Safe", -1, 0, 0)
+    println("Risk Taker Scavenger: " + riskTakerScavengerResult1.first().cargo());  // StarChart("Safe", -1, 0, 0)
+    println("2. Found higherStarChart when they both owned StarChart(M, 5, 1, 7): ");
+    Pair<Scavenger, Artifact> rationalScavengerResult2 = exploreAsteroid(rationalScavengerWithStarChart, higherStarChart);
+    Pair<Scavenger, Artifact> riskTakerScavengerResult2 = exploreAsteroid(riskTakerScavengerWithStarChart, higherStarChart);
+    println("Rational Scavenger: " + rationalScavengerResult2.first().cargo());     // StarChart("M", 5, 1, 7)
+    println("Risk Taker Scavenger: " + riskTakerScavengerResult2.first().cargo());  // StarChart("Danger", 8, 2, 0)
 
-    Scavenger scavenger = new Scavenger("M", ownedArtifact, newArtifact);
-    Result result = functionApply(analysisFunc, ownedArtifact, newArtifact);
-    println(result);
+    println("3. Found higherEnergyCrystal when they both owned EnergyCrystal(5): ");
+    Scavenger rationalScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::rationalScavengerAnalysis);
+    Scavenger riskTakerScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
+    Pair<Scavenger, Artifact> rationalScavengerResult3 = exploreAsteroid(rationalScavengerWithEnergyCrystal, higherEnergyCrystal);
+    Pair<Scavenger, Artifact> riskTakerScavengerResult3 = exploreAsteroid(riskTakerScavengerWithEnergyCrystal, higherEnergyCrystal);
+    println("Rational Scavenger: " + rationalScavengerResult3.first().cargo());     // EnergyCrystal(8)
+    println("Risk Taker Scavenger: " + riskTakerScavengerResult3.first().cargo());  // EnergyCrystal(8)
 
-    Pair<Scavenger, Artifact> outcome = exploreAsteroid(scavenger, newArtifact);
-    println("Outcome is " + outcome.first + outcome.second);
+    println("3. Found blueInertRock when they both owned redInertRock: ");
+    Scavenger rationalScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
+    Scavenger riskTakerScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Pair<Scavenger, Artifact> rationalScavengerResult4 = exploreAsteroid(rationalScavengerWithInertRock, blueInertRock);
+    Pair<Scavenger, Artifact> riskTakerScavengerResult4 = exploreAsteroid(riskTakerScavengerWithInertRock, blueInertRock);
+    println("Rational Scavenger: " + rationalScavengerResult4.first().cargo());     // InertRock("red")
+    println("Risk Taker Scavenger: " + riskTakerScavengerResult4.first().cargo());  // InertRock("red") or InertRock("blue")
 }
-
