@@ -851,10 +851,11 @@ void testTradeAtStarport() {
     println(getName(riskTakerScavenger) + " has: " + getCargo(result.second()));
 }
 
+
 // Part 3 
 
+// 1. Syntax for describing an Artifact
 /**
- * 1. Syntax for describing an Artifact
  * Takes an artifact and returns a string of its details, formatted exactly as required for the log entries.
  * - Star Chart: "StarChart:destination;RISK=risk;SEC=sector;SYS=system"
  * - Energy Crystal: "EnergyCrystal:POWER=power"
@@ -869,40 +870,32 @@ String describeArtifact(Artifact artifact) {
    }
 }
 
+// 2. Syntax for a Log Entry
  /**
-  * 2. Syntax for a Log Entry
   * Parses a log string from a Rational Scavenger that takes one of the following forms:
   * - ASTEROID | [ownedArtifact] | [foundArtifact]
   * - TRADING_POST | [ownedArtifact] | [otherScavengersArtifact]
-  * Then it simulates the encounter and returns the
-  * artifact the Rational Scavenger possesses *after*
-  * the log entry
+  * Then it simulates the encounter and returns the artifact the Rational Scavenger possesses after log entry.
   */
 Artifact parseRationalScavengerLog(String log) {
-    // get ASTEROID or TRADING_POST in "ASTEROID | [ownedArtifact] | [foundArtifact]"
+    // get three part in "ASTEROID | [ownedArtifact] | [foundArtifact]"
     int firstBar = IndexOf("|", log, 0);
     String encounter = Substring(log, 0, firstSep).trim();
 
-    // get [ownedArtifact]
     int secondSep = IndexOf("|", log, firstSep + 1);
     String ownedStr = Substring(log, firstSep + 1, secondSep).trim();
-
-    // get [foundArtifact]
     String otherStr = Substring(log, secondSep + 1, Length(log)).trim();
 
-    // 把 ownedStr 解析成 Artifact 对象
+    // transfer from String to Artifact
     Artifact owned = parseArtifact(ownedStr);
-
-    // 把 otherStr 解析成 Artifact 对象
     Artifact other = parseArtifact(otherStr);
 
-    // If ASTEROID，ues rationalScavengerAnalysis
-    boolean isAsteroid = Equals(encounter, "ASTEROID");
-    Result asteroidResult = rationalScavengerAnalysis(owned, other);
-
+    return encounter(encounter, owned, other);
  }
 
-
+/**
+ * 
+ */
 Artifact encounter(String encounterType, Artifact owned, Artifact other) {
     if (Equals(encounterType, "ASTEROID")) {
         return handleAsteroidEncounter(owned, other);
@@ -924,8 +917,61 @@ Artifact handleAsteroidEncounter(Artifact owned, Artifact found) {
 // Encounter TradingPost
 Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
     Result riskTakerResult = riskTakerScavengerAnalysis(other, owned);
-    Result rationalResult = rationalScavengerAnalysis(owned, other);
+    if (isValuable(riskTakerResult)) {
+        return other;
+    } else {
+        return owned;
+}
 }
 
+// transfer String to StarChart / EnergyCrystal / InertRock
+Artifact parseArtifact(String s) {
+    // get type（before the ":"）
+    int colonIndex = IndexOf(":", s, 0);
+    String type = Substring(s, 0, colonIndex);
 
+    // StarChart, eg.| StarChart:Proxima Centauri;RISK=3;SEC=7;SYS=42 |
+    if (Equals(type, "StarChart")) {
+        // get destination（between ":" and ";"）in 
+        int semi1 = IndexOf(";", s, colonIndex);
+        String dest = Substring(s, colonIndex + 1, semi1);
 
+        // get risk (after "RISK=" and before second semicolon ":")
+        int riskStart = IndexOf("RISK=", s, semi1) + 5;
+        int semi2 = IndexOf(";", s, riskStart);
+        String riskStr = Substring(s, riskStart, semi2);
+        int risk = StringToInt(riskStr);
+
+        // get sector (after "SEC=" and before third semicolon ":")
+        int sectorStart = IndexOf("SEC=", s, semi2) + 4;
+        int semi3 = IndexOf(";", s, sectorStart);
+        String sectorStr = Substring(s, sectorStart, semi3);
+        int sector = StringToInt(secStr);
+
+        // get system (after "SYS=" to the end of string)
+        int systemStart = IndexOf("SYS=", s, semi3) + 4;
+        String systemStr = Substring(s, systemStart, Length(s));
+        int system = StringToInt(systemStr);
+
+        return new StarChart(dest, risk, sector, system);
+    }
+
+    // EnergyCrystal, eg.| EnergyCrystal:POWER=500 | 
+    if (Equals(type, "EnergyCrystal")) {
+        // get power (after "=" to the end of string)
+        int equal = IndexOf("=", s, colonIndex);
+        String powerStr = Substring(s, equal + 1, Length(s));
+        int power = StringToInt(powerStr);
+        return new EnergyCrystal(power);
+    }
+
+    // InertRock, eg. | InertRock:COLOR=quartz |
+    if (Equals(type, "InertRock")) {
+        // get color (after "=" to the end of string)
+        int equal = IndexOf("=", s, colonIndex);
+        String color = Substring(s, equal + 1, Length(s));
+        return new InertRock(color);
+    }
+
+    throw new IllegalArgumentException("Unknown artifact format: " + s);
+}
