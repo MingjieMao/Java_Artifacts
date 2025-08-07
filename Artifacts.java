@@ -396,110 +396,46 @@ Result coinFlip() {
     }
 }
 
-
-void main() {
-    //Tests for Rational Scavenger
-    Artifact ownedArtifact1 = new StarChart("A", 8, 8, 8);
-    Artifact newArtifact1 = new StarChart("C", -1, 7, 9);
-    println(rationalScavengerAnalysis(ownedArtifact1, newArtifact1));
-
-    Artifact ownedArtifact2 = new StarChart("C", -2, 4, 8);
-    Artifact newArtifact2 = new StarChart("S", 0, -5, 9);
-    println(rationalScavengerAnalysis(ownedArtifact2, newArtifact2));
-
-    Artifact ownedArtifact3 = new StarChart("F", 0, 0, 0);
-    Artifact newArtifact3 = new StarChart("H", 0, 7, -3);
-    println(rationalScavengerAnalysis(ownedArtifact3, newArtifact3));
-
-    Artifact ownedArtifact4 = new EnergyCrystal(-1);
-    Artifact newArtifact4 = new EnergyCrystal(2);
-    println(rationalScavengerAnalysis(ownedArtifact4, newArtifact4));
-
-    Artifact ownedArtifact5 = new EnergyCrystal(4);
-    Artifact newArtifact5 = new EnergyCrystal(-2);
-    println(rationalScavengerAnalysis(ownedArtifact5, newArtifact5));
-
-    Artifact ownedArtifact6 = new EnergyCrystal(0);
-    Artifact newArtifact6 = new EnergyCrystal(0);
-    println(rationalScavengerAnalysis(ownedArtifact6, newArtifact6));
-
-    Artifact ownedArtifact7 = new InertRock("black");
-    Artifact newArtifact7 = new InertRock("black");
-    println(rationalScavengerAnalysis(ownedArtifact7, newArtifact7));
-
-    Artifact ownedArtifact8 = new InertRock("red");
-    Artifact newArtifact8 = new InertRock("blue");
-    println(rationalScavengerAnalysis(ownedArtifact8, newArtifact8));
-
-    Artifact ownedArtifact9 = new EnergyCrystal(-2);
-    Artifact newArtifact9 = new StarChart("A", -1, 4, -8);
-    println(rationalScavengerAnalysis(ownedArtifact9, newArtifact9));
-
-    Artifact ownedArtifact10 = new StarChart("A", 2, -1, 9);
-    Artifact newArtifact10 = new EnergyCrystal(0);
-    println(rationalScavengerAnalysis(ownedArtifact10, newArtifact10));
-
-    Artifact ownedArtifact11 = new InertRock("yellow");
-    Artifact newArtifact11 = new StarChart("G", -3, -1, 6);
-    println(rationalScavengerAnalysis(ownedArtifact11, newArtifact11));
-
-    Artifact ownedArtifact12 = new InertRock("green");
-    Artifact newArtifact12 = new EnergyCrystal(-3);
-    println(rationalScavengerAnalysis(ownedArtifact12, newArtifact12));
-
-    //Tests for Risk Taker Scavenger
-    Artifact ownedArtifact13 = new StarChart("D", 2, -8, 8);
-    Artifact newArtifact13 = new StarChart("B", -4, 7, -9);
-    println(riskTakerScavengerAnalysis(ownedArtifact13, newArtifact13));
-
-    Artifact ownedArtifact14 = new EnergyCrystal(-2);
-    Artifact newArtifact14 = new StarChart("B", 0, 7, 9);
-    println(riskTakerScavengerAnalysis(ownedArtifact14, newArtifact14));
-
-    Artifact ownedArtifact15 = new InertRock("black");
-    Artifact newArtifact15 = new StarChart("B", 9, 4, 5);
-    println(riskTakerScavengerAnalysis(ownedArtifact15, newArtifact15));
-
-    Artifact ownedArtifact16 = new StarChart("G", -4, 8, 34);
-    Artifact newArtifact16 = new EnergyCrystal(2);
-    println(riskTakerScavengerAnalysis(ownedArtifact16, newArtifact16));
-
-    Artifact ownedArtifact17 = new StarChart("A", 0, -3, -2);
-    Artifact newArtifact17 = new InertRock("yellow");
-    println(riskTakerScavengerAnalysis(ownedArtifact17, newArtifact17));
-
-    Artifact ownedArtifact18 = new EnergyCrystal(-1);
-    Artifact newArtifact18 = new EnergyCrystal(2);
-    println(riskTakerScavengerAnalysis(ownedArtifact18, newArtifact18));
-
-    Artifact ownedArtifact19 = new EnergyCrystal(3);
-    Artifact newArtifact19 = new EnergyCrystal(-6);
-    println(riskTakerScavengerAnalysis(ownedArtifact19, newArtifact19));
-
-    Artifact ownedArtifact20 = new EnergyCrystal(0);
-    Artifact newArtifact20 = new EnergyCrystal(0);
-    println(riskTakerScavengerAnalysis(ownedArtifact20, newArtifact20));
-
-    Artifact ownedArtifact21 = new InertRock("blue");
-    Artifact newArtifact21 = new InertRock("blue");
-    println(riskTakerScavengerAnalysis(ownedArtifact21, newArtifact21));
-
-    Artifact ownedArtifact22 = new InertRock("red");
-    Artifact newArtifact22 = new InertRock("blue");
-    println(riskTakerScavengerAnalysis(ownedArtifact22, newArtifact22));
-
-    Artifact ownedArtifact23 = new InertRock("black");
-    Artifact newArtifact23 = new InertRock("blue");
-    println(riskTakerScavengerAnalysis(ownedArtifact23, newArtifact23));
-
-    Artifact ownedArtifact24 = new InertRock("green");
-    Artifact newArtifact24 = new EnergyCrystal(0);
-    println(riskTakerScavengerAnalysis(ownedArtifact24, newArtifact24));
-
-    // Test for Part2 Scenario 1.
-    testDifferentStrategies();
+void testRationalScavenger() {
+    println(rationalScavengerAnalysis(new StarChart("A", 8, 8, 8), new StarChart("C", -1, 7, 9)));  // Expected: VALUABLE
+    println(rationalScavengerAnalysis(new StarChart("C", -2, 4, 8), new StarChart("S", 7, -5, 9))); // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new StarChart("F", 0, 0, 0), new StarChart("H", 0, 7, -3)));  // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new EnergyCrystal(-1), new EnergyCrystal(2)));                // Expected: VALUABLE
+    println(rationalScavengerAnalysis(new EnergyCrystal(4), new EnergyCrystal(-2)));               // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new EnergyCrystal(0), new EnergyCrystal(0)));                // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new InertRock("black"), new InertRock("black")));           // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new InertRock("red"), new InertRock("blue")));              // Expected: INCOMPATIBLE
+    println(rationalScavengerAnalysis(new EnergyCrystal(-2), new StarChart("A", -1, 4, -8)));      // Expected: HAZARDOUS
+    println(rationalScavengerAnalysis(new StarChart("A", 2, -1, 9), new EnergyCrystal(0)));        // Expected: MUNDANE
+    println(rationalScavengerAnalysis(new InertRock("yellow"), new StarChart("G", -3, -1, 6)));    // Expected: UNKNOWN
+    println(rationalScavengerAnalysis(new InertRock("green"), new EnergyCrystal(-3)));            // Expected: UNKNOWN
 }
 
+void testRiskTakerScavenger() {
+    println(riskTakerScavengerAnalysis(new StarChart("D", 2, -8, 8), new StarChart("B", -4, 7, -9)));
+    println(riskTakerScavengerAnalysis(new EnergyCrystal(-2), new StarChart("B", 0, 7, 9)));
+    println(riskTakerScavengerAnalysis(new InertRock("black"), new StarChart("B", 9, 4, 5)));
+    println(riskTakerScavengerAnalysis(new StarChart("G", -4, 8, 34), new EnergyCrystal(2)));
+    println(riskTakerScavengerAnalysis(new StarChart("A", 0, -3, -2), new InertRock("yellow")));
+    println(riskTakerScavengerAnalysis(new EnergyCrystal(-1), new EnergyCrystal(2)));
+    println(riskTakerScavengerAnalysis(new EnergyCrystal(3), new EnergyCrystal(-6)));
+    println(riskTakerScavengerAnalysis(new EnergyCrystal(0), new EnergyCrystal(0)));
+    println(riskTakerScavengerAnalysis(new InertRock("blue"), new InertRock("blue")));
+    println(riskTakerScavengerAnalysis(new InertRock("red"), new InertRock("blue")));
+    println(riskTakerScavengerAnalysis(new InertRock("black"), new InertRock("blue")));
+    println(riskTakerScavengerAnalysis(new InertRock("green"), new EnergyCrystal(0)));
+}
+
+void main() {
+    println("Rational Scavenger Tests: ");
+    testRationalScavenger();
+
+    println("Risk Taker Scavenger Tests: ");
+    testRiskTakerScavenger();
+
+    println("Part2 Scenario 1 Tests: ");
+    testDifferentStrategies();
+}
 
 void testTwoStarChartExample1() {
     Artifact ownedArtifact = new StarChart("A", 8, 8, 8);
@@ -707,7 +643,6 @@ Pair<Scavenger, Artifact> handleHazardousArtifact(Scavenger scavenger, Artifact 
  * Test for Part2 Scenario 1.
  */
 void testDifferentStrategies() {
-    println("Test for Part2 Scenario 1: ");
     Artifact lowerStarChart = new StarChart("Safe", -1, 0, 0);
     Artifact higherStarChart = new StarChart("Danger", 8, 2, 0);
     Artifact higherEnergyCrystal = new EnergyCrystal(8);
@@ -734,7 +669,7 @@ void testDifferentStrategies() {
     println("Rational Scavenger: " + rationalScavengerResult3.first().cargo());     // EnergyCrystal(8)
     println("Risk Taker Scavenger: " + riskTakerScavengerResult3.first().cargo());  // EnergyCrystal(8)
 
-    println("3. Found blueInertRock when they both owned redInertRock: ");
+    println("4. Found blueInertRock when they both owned redInertRock: ");
     Scavenger rationalScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
     Scavenger riskTakerScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
     Pair<Scavenger, Artifact> rationalScavengerResult4 = exploreAsteroid(rationalScavengerWithInertRock, blueInertRock);
