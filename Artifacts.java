@@ -451,169 +451,161 @@ void testRationalAnalysis_TwoStarChart1() {
     Artifact ownedArtifact = new StarChart("A", 8, 8, 8);
     Artifact newArtifact = new StarChart("C", -1, 7, 9);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isValuable(result), "Lower risk factor of new StarChart should be valuable to owned StarChart.");
+    testEqual(true, isValuable(result), "RationalScavenger: Lower risk factor of new StarChart should be valuable to owned StarChart.");
 }
 
 void testRationalAnalysis_TwoStarChart2() {
     Artifact ownedArtifact = new StarChart("C", -2, 4, 8);
     Artifact newArtifact = new StarChart("S", 7, -5, 9);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "Higher risk factor of new StarChart should be mundane with owned StarChart.");
+    testEqual(true, isMundane(result), "RationalScavenger: Higher risk factor of new StarChart should be mundane with owned StarChart.");
 }
 
 void testRationalAnalysis_TwoStarChart3() {
     Artifact ownedArtifact = new StarChart("F", 0, 0, 0);
     Artifact newArtifact = new StarChart("H", 0, 7, -3);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "Same risk factor of new StarChart should be mundane with owned StarChart.");
+    testEqual(true, isMundane(result), "RationalScavenger: Same risk factor of new StarChart should be mundane with owned StarChart.");
 }
 
 void testRationalAnalysis_TwoEnergyCrystal1() {
     Artifact ownedArtifact = new EnergyCrystal(-1);
     Artifact newArtifact = new EnergyCrystal(2);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isValuable(result), "EnergyCrystal(2) should be more valuable than EnergyCrystal(-1).");
+    testEqual(true, isValuable(result), "RationalScavenger: EnergyCrystal(2) should be more valuable than EnergyCrystal(-1).");
 }
 
 void testRationalAnalysis_TwoEnergyCrystal2() {
     Artifact ownedArtifact = new EnergyCrystal(4);
     Artifact newArtifact = new EnergyCrystal(-2);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "EnergyCrystal(-2) should be mundane with EnergyCrystal(4).");
+    testEqual(true, isMundane(result), "RationalScavenger: EnergyCrystal(-2) should be mundane with EnergyCrystal(4).");
 }
 
 void testRationalAnalysis_TwoEnergyCrystal3() {
     Artifact ownedArtifact = new EnergyCrystal(0);
     Artifact newArtifact = new EnergyCrystal(0);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "EnergyCrystal(0) should be mundane with EnergyCrystal(0).");
+    testEqual(true, isMundane(result), "RationalScavenger: EnergyCrystal(0) should be mundane with EnergyCrystal(0).");
 }
 
 void testRationalAnalysis_TwoInertRocks1() {
     Artifact ownedArtifact = new InertRock("black");
     Artifact newArtifact = new InertRock("black");
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "Same colors of two InertRocks should be mundane.");
+    testEqual(true, isMundane(result), "RationalScavenger: Same colors of two InertRocks should be mundane.");
 }
 
 void testRationalAnalysis_TwoInertRocks2() {
     Artifact ownedArtifact = new InertRock("red");
     Artifact newArtifact = new InertRock("blue");
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isIncompatible(result), "Different colors of two InertRocks should be incompatible.");
+    testEqual(true, isIncompatible(result), "RationalScavenger: Different colors of two InertRocks should be incompatible.");
 }
 
 void testRationalAnalysis_EnergyCrystalStarChart() {
     Artifact ownedArtifact = new EnergyCrystal(-2);
     Artifact newArtifact = new StarChart("A", -1, 4, -8);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isHazardous(result), "NewArtifact is StarChart, result should be hazardous.");
+    testEqual(true, isHazardous(result), "RationalScavenger: NewArtifact is StarChart, result should be hazardous.");
 }
 
 void testRationalAnalysis_StarChartEnergyCrystal() {
     Artifact ownedArtifact = new StarChart("A", 2, -1, 9);
     Artifact newArtifact = new EnergyCrystal(0);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isMundane(result), "NewArtifact is EnergyCrystal, result should be mundane.");
+    testEqual(true, isMundane(result), "RationalScavenger: NewArtifact is EnergyCrystal, result should be mundane.");
 }
 
 void testRationalAnalysis_InertRockStarChart() {
     Artifact ownedArtifact = new InertRock("yellow");
     Artifact newArtifact = new StarChart("G", -3, -1, 6);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isUnknown(result), "InertRock with different type should be unknown.");
+    testEqual(true, isUnknown(result), "RationalScavenger: InertRock with different type should be unknown.");
 }
 
 void testRationalAnalysis_InertRockEnergyCrystal() {
     Artifact ownedArtifact = new InertRock("green");
     Artifact newArtifact = new EnergyCrystal(-3);
     Result result = rationalScavengerAnalysis(ownedArtifact, newArtifact);
-    testEqual(true, isUnknown(result), "InertRock with different type should be unknown.");
+    testEqual(true, isUnknown(result), "RationalScavenger: InertRock with different type should be unknown.");
 }
 
 // Part 1 - riskTakerScavengerAnalysis tests
 void testRiskTaker_NewStarChart1() {
-    Artifact ownedArtifact = new StarChart("D", 2, -8, 8);
-    Artifact newArtifact = new StarChart("B", -4, 7, -9);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new StarChart("D", 2, -8, 8);
+    Artifact found = new StarChart("B", -4, 7, -9);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isValuable(result), "RiskTaker: any new StarChart should be valuable.");
 }
-
 void testRiskTaker_NewStarChart2() {
-    Artifact ownedArtifact = new EnergyCrystal(-2);
-    Artifact newArtifact = new StarChart("B", 0, 7, 9);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new EnergyCrystal(-2);
+    Artifact found = new StarChart("B", 0, 7, 9);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isValuable(result), "RiskTaker: any new StarChart should be valuable.");
 }
-
 void testRiskTaker_NewStarChart3() {
-    Artifact ownedArtifact = new InertRock("black");
-    Artifact newArtifact = new StarChart("B", 9, 4, 5);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new InertRock("black");
+    Artifact found = new StarChart("B", 9, 4, 5);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isValuable(result), "RiskTaker: any new StarChart should be valuable.");
 }
 
 void testRiskTaker_StarChartEnergyCrystal() {
-    Artifact ownedArtifact = new StarChart("G", -4, 8, 34);
-    Artifact newArtifact = new EnergyCrystal(2);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new StarChart("G", -4, 8, 34);
+    Artifact found = new EnergyCrystal(2);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isMundane(result), "RiskTaker: StarChart vs EnergyCrystal should be mundane.");
 }
 
 void testRiskTaker_StarChartInertRock() {
-    Artifact ownedArtifact = new StarChart("A", 0, -3, -2);
-    Artifact newArtifact = new InertRock("yellow");
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new StarChart("A", 0, -3, -2);
+    Artifact found = new InertRock("yellow");
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isMundane(result), "RiskTaker: StarChart vs InertRock should be mundane.");
 }
 
 void testRiskTaker_TwoEnergyCrystal1() {
-    Artifact ownedArtifact = new EnergyCrystal(-1);
-    Artifact newArtifact = new EnergyCrystal(2);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new EnergyCrystal(-1);
+    Artifact found = new EnergyCrystal(2);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isValuable(result), "RiskTaker: new EnergyCrystal has more power.");
 }
 
 void testRiskTaker_TwoEnergyCrystal2() {
-    Artifact ownedArtifact = new EnergyCrystal(3);
-    Artifact newArtifact = new EnergyCrystal(-6);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new EnergyCrystal(3);
+    Artifact found = new EnergyCrystal(-6);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isMundane(result), "RiskTaker: new EnergyCrystal has less power.");
 }
 
 void testRiskTaker_TwoEnergyCrystal3() {
-    Artifact ownedArtifact = new EnergyCrystal(0);
-    Artifact newArtifact = new EnergyCrystal(0);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new EnergyCrystal(0);
+    Artifact found = new EnergyCrystal(0);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isMundane(result), "RiskTaker: same power EnergyCrystals are mundane.");
 }
 
 void testRiskTaker_TwoInertRocks1() {
-    Artifact ownedArtifact = new InertRock("blue");
-    Artifact newArtifact = new InertRock("blue");
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new InertRock("blue");
+    Artifact found = new InertRock("blue");
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isMundane(result), "RiskTaker: same color InertRock is mundane.");
 }
 
 void testRiskTaker_TwoInertRocks2() {
-    Artifact ownedArtifact = new InertRock("red");
-    Artifact newArtifact = new InertRock("blue");
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
-}
-
-void testRiskTaker_TwoInertRocks3() {
-    Artifact ownedArtifact = new InertRock("black");
-    Artifact newArtifact = new InertRock("blue");
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new InertRock("red");
+    Artifact found = new InertRock("blue");
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isValuable(result) || isIncompatible(result), 
+    "RiskTaker: different color InertRock should be 50% valuable or incompatible.");
 }
 
 void testRiskTaker_InertRockEnergyCrystal() {
-    Artifact ownedArtifact = new InertRock("green");
-    Artifact newArtifact = new EnergyCrystal(0);
-    Result result = riskTakerScavengerAnalysis(ownedArtifact, newArtifact);
-    println(result);
+    Artifact owned = new InertRock("green");
+    Artifact found = new EnergyCrystal(0);
+    Result result = riskTakerScavengerAnalysis(owned, found);
+    testEqual(true, isUnknown(result), "RiskTaker: EnergyCrystal vs InertRock should be unknown.");
 }
 
 void test() {
@@ -642,19 +634,12 @@ void test() {
     runAsTest(this::testRiskTaker_TwoEnergyCrystal3);
     runAsTest(this::testRiskTaker_TwoInertRocks1);
     runAsTest(this::testRiskTaker_TwoInertRocks2);
-    runAsTest(this::testRiskTaker_TwoInertRocks3);
     runAsTest(this::testRiskTaker_InertRockEnergyCrystal);
 
     // Part 2 - exploreAsteroid tests
-    runAsTest(this::testExploreAsteroidValuable);
-    runAsTest(this::testExploreAsteroidMundane);
-    runAsTest(this::testExploreAsteroidHazardousOutcome);
-    runAsTest(this::testExploreAsteroidIncompatible);
-    runAsTest(this::testExploreAsteroidUnknown);
+    runAsTest(this::testDifferentStrategies_withTestEqual);
 
     // Part 2 - tradeAtStarport tests
-    runAsTest(this::testTradeMutualValuable);
-    runAsTest(this::testTradeOneSideNotValuable);
 }
 
 void main() {
@@ -669,6 +654,12 @@ void main() {
 
     println("Part2 Scenario 2 Tests: ");
     testTradeAtStarport();
+
+    println("Part3: ");
+    String input = readln("Enter Rational Scavenger log: ");
+    Artifact finalArtifact = parseRationalScavengerLog(input);
+    String finalDecription = describeArtifact(finalArtifact);
+    println("FINAL CARGO: " + finalDecription);
 }
 
 
@@ -698,18 +689,30 @@ Scavenger makeScavenger(String name, Artifact cargo, BiFunction<Artifact,Artifac
 }
 
 /**
- * Get Cargo from
- * @param scavenger 
- * @return artifact
+ * Returns the artifact currently held by the given scavenger.
+ * Examples:
+ *     - Given: scavenger = RationalScavenger("Alice", EnergyCrystal(100))  
+ *       Expect: EnergyCrystal(100)
+ *     - Given: scavenger = RiskTakerScavenger("Bob", InertRock("red"))  
+ *       Expect: InertRock(red)
+ *     - Given: scavenger = RationalScavenger("Carol", StarChart("Mars", 3, 7, 9))  
+ *       Expect: StarChart(Mars, 3, 7, 9)
+ * @param scavenger the scavenger whose cargo is being retrieved
+ * @return the artifact held in the scavenger's cargo
  */
 Artifact getCargo(Scavenger scavenger) {
     return scavenger.cargo();
 }
 
 /**
- * Get name from
- * @param scavenger 
- * @return name
+ * Returns the name of the given scavenger.
+ * Examples:
+ *     - Given: scavenger = RationalScavenger("Alice", EnergyCrystal(50))  
+ *       Expect: "Alice"
+ *     - Given: scavenger = RiskTakerScavenger("Bob", InertRock("red"))  
+ *       Expect: "Bob"
+ * @param scavenger - the scavenger whose name is being retrieved
+ * @return - the name of the scavenger
  */
 String getName(Scavenger scavenger) {
     return scavenger.name();
@@ -792,6 +795,7 @@ void testDifferentStrategies() {
     Artifact higherEnergyCrystal = new EnergyCrystal(8);
     Artifact blueInertRock = new InertRock("blue");
 
+    // Both own same StarChart, found lowerStarChart
     Scavenger rationalScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::rationalScavengerAnalysis);
     Scavenger riskTakerScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::riskTakerScavengerAnalysis);
     println("1. Found lowerStarChart when they both owned StarChart(M, 5, 1, 7): ");
@@ -799,12 +803,15 @@ void testDifferentStrategies() {
     Pair<Scavenger, Artifact> riskTakerScavengerResult1 = exploreAsteroid(riskTakerScavengerWithStarChart, lowerStarChart);
     println("Rational Scavenger: " + rationalScavengerResult1.first().cargo());     // StarChart("Safe", -1, 0, 0)
     println("Risk Taker Scavenger: " + riskTakerScavengerResult1.first().cargo());  // StarChart("Safe", -1, 0, 0)
+    
+    // Both own same StarChart, found higherStarChart
     println("2. Found higherStarChart when they both owned StarChart(M, 5, 1, 7): ");
     Pair<Scavenger, Artifact> rationalScavengerResult2 = exploreAsteroid(rationalScavengerWithStarChart, higherStarChart);
     Pair<Scavenger, Artifact> riskTakerScavengerResult2 = exploreAsteroid(riskTakerScavengerWithStarChart, higherStarChart);
     println("Rational Scavenger: " + rationalScavengerResult2.first().cargo());     // StarChart("M", 5, 1, 7)
     println("Risk Taker Scavenger: " + riskTakerScavengerResult2.first().cargo());  // StarChart("Danger", 8, 2, 0)
 
+    // Both own same EnergyCrystal, found higherEnergyCrystal
     println("3. Found higherEnergyCrystal when they both owned EnergyCrystal(5): ");
     Scavenger rationalScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::rationalScavengerAnalysis);
     Scavenger riskTakerScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
@@ -813,6 +820,7 @@ void testDifferentStrategies() {
     println("Rational Scavenger: " + rationalScavengerResult3.first().cargo());     // EnergyCrystal(8)
     println("Risk Taker Scavenger: " + riskTakerScavengerResult3.first().cargo());  // EnergyCrystal(8)
 
+    // Both own same InertRock, found blueInertRock
     println("4. Found blueInertRock when they both owned redInertRock: ");
     Scavenger rationalScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
     Scavenger riskTakerScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
@@ -821,6 +829,44 @@ void testDifferentStrategies() {
     println("Rational Scavenger: " + rationalScavengerResult4.first().cargo());     // InertRock("red")
     println("Risk Taker Scavenger: " + riskTakerScavengerResult4.first().cargo());  // InertRock("red") or InertRock("blue")
 }
+
+void testDifferentStrategies_withTestEqual() {
+    Artifact lowerStarChart = new StarChart("Safe", -1, 0, 0);
+    Artifact higherStarChart = new StarChart("Danger", 8, 2, 0);
+    Artifact higherEnergyCrystal = new EnergyCrystal(8);
+    Artifact blueInertRock = new InertRock("blue");
+
+    // Both own same StarChart, found lowerStarChart
+    Scavenger rationalStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::rationalScavengerAnalysis);
+    Scavenger riskTakerStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::riskTakerScavengerAnalysis);
+    Result result1_rational = rationalScavengerAnalysis(rationalStarChart.cargo(), lowerStarChart);
+    Result result1_risk = riskTakerScavengerAnalysis(riskTakerStarChart.cargo(), lowerStarChart);
+    testEqual(true, isValuable(result1_rational), "Rational: lower risk StarChart is valuable");
+    testEqual(true, isValuable(result1_risk), "RiskTaker: always takes StarChart");
+
+    // Both own same StarChart, found higherStarChart
+    Result result2_rational = rationalScavengerAnalysis(rationalStarChart.cargo(), higherStarChart);
+    Result result2_risk = riskTakerScavengerAnalysis(riskTakerStarChart.cargo(), higherStarChart);
+    testEqual(true, isMundane(result2_rational), "Rational: higher risk StarChart is mundane");
+    testEqual(true, isValuable(result2_risk), "RiskTaker: always takes StarChart");
+
+    // Both own same EnergyCrystal, found higherEnergyCrystal
+    Scavenger rationalEnergy = new Scavenger("M", new EnergyCrystal(5), this::rationalScavengerAnalysis);
+    Scavenger riskTakerEnergy = new Scavenger("M", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
+    Result result3_rational = rationalScavengerAnalysis(rationalEnergy.cargo(), higherEnergyCrystal);
+    Result result3_risk = riskTakerScavengerAnalysis(riskTakerEnergy.cargo(), higherEnergyCrystal);
+    testEqual(true, isValuable(result3_rational), "Rational: higher power EnergyCrystal is valuable");
+    testEqual(true, isValuable(result3_risk), "RiskTaker: higher power EnergyCrystal is valuable");
+
+    // Both own same InertRock, found blueInertRock
+    Scavenger rationalInert = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
+    Scavenger riskTakerInert = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Result result4_rational = rationalScavengerAnalysis(rationalInert.cargo(), blueInertRock);
+    Result result4_risk = riskTakerScavengerAnalysis(riskTakerInert.cargo(), blueInertRock);
+    testEqual(true, isIncompatible(result4_rational), "Rational: different color InertRock is incompatible");
+    boolean validRiskResult = isValuable(result4_risk) || isIncompatible(result4_risk);
+    testEqual(true, validRiskResult, "RiskTaker: coin flip result for different color InertRock");
+} 
 
 
 // Scenario 2: Trading at a Starport
@@ -867,7 +913,7 @@ String describeArtifact(Artifact artifact) {
     case EnergyCrystal ec -> "EnergyCrystal:POWER=" + ec.power();
     case InertRock ir -> "InertRock:COLOR=" + ir.color(); 
     default -> throw new IllegalArgumentException("Unknown artifact type: " + artifact);
-   }
+   };
 }
 
 // 2. Syntax for a Log Entry
@@ -880,11 +926,11 @@ String describeArtifact(Artifact artifact) {
 Artifact parseRationalScavengerLog(String log) {
     // get three part in "ASTEROID | [ownedArtifact] | [foundArtifact]"
     int firstBar = IndexOf("|", log, 0);
-    String encounter = Substring(log, 0, firstBar).trim();
+    String encounter = SubString(log, 0, firstBar).trim();
 
     int secondBar = IndexOf("|", log, firstBar + 1);
-    String ownedStr = Substring(log, firstBar + 1, secondBar).trim();
-    String otherStr = Substring(log, secondBar + 1, Length(log)).trim();
+    String ownedStr = SubString(log, firstBar + 1, secondBar).trim();
+    String otherStr = SubString(log, secondBar + 1, Length(log)).trim();
 
     // transfer from String to Artifact
     Artifact owned = parseArtifact(ownedStr);
@@ -928,29 +974,29 @@ Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
 Artifact parseArtifact(String s) {
     // get type（before the ":"）
     int colonIndex = IndexOf(":", s, 0);
-    String type = Substring(s, 0, colonIndex);
+    String type = SubString(s, 0, colonIndex);
 
     // StarChart, eg.| StarChart:Proxima Centauri;RISK=3;SEC=7;SYS=42 |
     if (Equals(type, "StarChart")) {
         // get destination（between ":" and ";"）in 
         int semi1 = IndexOf(";", s, colonIndex);
-        String dest = Substring(s, colonIndex + 1, semi1);
+        String dest = SubString(s, colonIndex + 1, semi1);
 
         // get risk (after "RISK=" and before second semicolon ":")
         int riskStart = IndexOf("RISK=", s, semi1) + 5;
         int semi2 = IndexOf(";", s, riskStart);
-        String riskStr = Substring(s, riskStart, semi2);
+        String riskStr = SubString(s, riskStart, semi2);
         int risk = StringToInt(riskStr);
 
         // get sector (after "SEC=" and before third semicolon ":")
         int sectorStart = IndexOf("SEC=", s, semi2) + 4;
         int semi3 = IndexOf(";", s, sectorStart);
-        String sectorStr = Substring(s, sectorStart, semi3);
+        String sectorStr = SubString(s, sectorStart, semi3);
         int sector = StringToInt(sectorStr);
 
         // get system (after "SYS=" to the end of string)
         int systemStart = IndexOf("SYS=", s, semi3) + 4;
-        String systemStr = Substring(s, systemStart, Length(s));
+        String systemStr = SubString(s, systemStart, Length(s));
         int system = StringToInt(systemStr);
 
         return new StarChart(dest, risk, sector, system);
@@ -960,7 +1006,7 @@ Artifact parseArtifact(String s) {
     if (Equals(type, "EnergyCrystal")) {
         // get power (after "=" to the end of string)
         int equal = IndexOf("=", s, colonIndex);
-        String powerStr = Substring(s, equal + 1, Length(s));
+        String powerStr = SubString(s, equal + 1, Length(s));
         int power = StringToInt(powerStr);
         return new EnergyCrystal(power);
     }
@@ -969,20 +1015,10 @@ Artifact parseArtifact(String s) {
     if (Equals(type, "InertRock")) {
         // get color (after "=" to the end of string)
         int equal = IndexOf("=", s, colonIndex);
-        String color = Substring(s, equal + 1, Length(s));
+        String color = SubString(s, equal + 1, Length(s));
         return new InertRock(color);
     }
 
     throw new IllegalArgumentException("Unknown artifact format: " + s);
 }
 
-/**
- * Format: FINAL CARGO: [final_artifact]
- * Example Output: FINAL CARGO: EnergyCrystal:POWER=900
- */
-void main() {
-    String input = readLine;
-    Artifact finalArtifact = parseRationalScavengerLog(input);
-    String finalDecription = describeArtifact(finalArtifact);
-    println("FINAL CARGO: " + finalDecription);
-}
