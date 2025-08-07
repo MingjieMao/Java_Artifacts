@@ -435,6 +435,9 @@ void main() {
 
     println("Part2 Scenario 1 Tests: ");
     testDifferentStrategies();
+
+    println("Part2 Scenario 2 Tests: ");
+    testTradeAtStarport();
 }
 
 void testTwoStarChartExample1() {
@@ -522,6 +525,7 @@ void testInertRockEnergyCrystalExample() {
 }
 
 void test() {
+    // Test for
     runAsTest(this::testTwoStarChartExample1);
     runAsTest(this::testTwoStarChartExample2);
     runAsTest(this::testTwoStarChartExample3);
@@ -569,7 +573,29 @@ boolean isUnknown(Result result) {
  * @param cargo - a single artifact in their cargo hold
  * @param analysisFunc - a unique personal analysis protocol for evaluating artifacts, which is a BiFunction
  */
-record Scavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {}
+record Scavenger(String name, Artifact cargo, BiFunction<Artifact, Artifact, Result> analysisFunc) {}
+
+Scavenger makeScavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {
+    return new Scavenger(name, cargo, analysisFunc);
+}
+
+/**
+ * Get Cargo from
+ * @param scavenger 
+ * @return artifact
+ */
+Artifact getCargo(Scavenger scavenger) {
+    return scavenger.cargo();
+}
+
+/**
+ * Get name from
+ * @param scavenger 
+ * @return name
+ */
+String getName(Scavenger scavenger) {
+    return scavenger.name();
+}
 
 /**
  * The function returns a Pair of the scavenger's new state and the artifact left behind.
@@ -677,3 +703,30 @@ void testDifferentStrategies() {
     println("Rational Scavenger: " + rationalScavengerResult4.first().cargo());     // InertRock("red")
     println("Risk Taker Scavenger: " + riskTakerScavengerResult4.first().cargo());  // InertRock("red") or InertRock("blue")
 }
+
+/**
+ * Computes the result of two scavengers meeting to trade.
+ * A trade occurs only if Scavenger A evaluates ScavengerB's artifact as VALUABLE (using A's personal protocol),
+ * AND Scavenger B evaluates Scavenger A's artifact as VALUABLE (using B's personal protocol). 
+ * The function returns a Pair of the scavengers' final states, in their original order.
+ */
+Pair<Scavenger, Scavenger> tradeAtStarport(Scavenger scavengerA, Scavenger scavengerB) {
+    Result resultA = evaluateArtifact(scavengerA.analysisFunc(), scavengerA.cargo(), scavengerB.cargo());
+    Result resultB = evaluateArtifact(scavengerB.analysisFunc(), scavengerB.cargo(), scavengerA.cargo());
+    if (Equals(resultA, Result.isValuable) && Equals(resultB, Result.isValuable)) {
+        Scavenger newScavengerA = new Scavenger(scavengerA.name(), scavengerB.cargo(), scavengerA.analysisFunc());
+        Scavenger newScavengerB = new Scavenger(scavengerB.name(), scavengerA.cargo(), scavengerB.analysisFunc());
+        return new Pair<Scavenger, Scavenger>(newScavengerA, newScavengerB);
+    }
+    return new Pair<Scavenger, Scavenger>(scavengerA, scavengerB);
+}
+
+void testTradeAtStarport() {
+    Scavenger rationalScavenger = makeScavenger("RationalScavenger", new StarChart("A", 9, 1, 7), this::rationalScavengerAnalysis);
+    Scavenger riskTakerScavenger = makeScavenger("RiskTakerScavenger", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
+    Pair<Scavenger, Scavenger> result = tradeAtStarport(rationalScavenger, riskTakerScavenger);
+    println("After trade: ");
+    println(getName(rationalScavenger) + " has: " + getCargo(rationalScavenger));
+    println(getName(riskTakerScavenger) + " has: " + getCargo(riskTakerScavenger));
+}
+
