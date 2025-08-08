@@ -682,27 +682,6 @@ void test() {
     runAsTest(this::testParseRationalScavengerLog);
 }
 
-void main() {
-    println("Rational Scavenger Tests: ");
-    testRationalScavenger();
-
-    println("Risk Taker Scavenger Tests: ");
-    testRiskTakerScavenger();
-
-    println("Part2 Scenario 1 Tests: ");
-    testDifferentStrategies();
-
-    println("Part2 Scenario 2 Tests: ");
-    testTradeAtStarport();
-
-    println("Part3: ");
-    String input = readln("Enter Rational Scavenger log: ");
-    Artifact finalArtifact = parseRationalScavengerLog(input);
-    String finalDecription = describeArtifact(finalArtifact);
-    println("FINAL CARGO: " + finalDecription);
-}
-
-
 // Part 2: The Scavenger Fleet
 // Scenario 1: Exploring an Asteroid
 
@@ -1267,6 +1246,27 @@ Artifact parseArtifact(String s) {
 
     throw new IllegalArgumentException("Unknown artifact format: " + s);
 }
+
+void main() {
+    println("Rational Scavenger Tests: ");
+    testRationalScavenger();
+
+    println("Risk Taker Scavenger Tests: ");
+    testRiskTakerScavenger();
+
+    println("Part2 Scenario 1 Tests: ");
+    testDifferentStrategies();
+
+    println("Part2 Scenario 2 Tests: ");
+    testTradeAtStarport();
+
+    println("Part3: ");
+    String input = readln("Enter Rational Scavenger log: ");
+    Artifact finalArtifact = parseRationalScavengerLog(input);
+    String finalDecription = describeArtifact(finalArtifact);
+    println("FINAL CARGO: " + finalDecription);
+}
+
 
 void testParseRationalScavengerLog() {
      // ASTEROID: Higher power crystal should be picked
