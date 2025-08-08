@@ -6,7 +6,7 @@ time-on-task:
 - task: "Part 3"
   time: 230 
 - task: "Part 4"
-  time: 120
+  time: 180
 sessions: 
 - start: 2025-08-04 20:10
   end: 2025-08-04 21:10
