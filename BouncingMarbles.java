@@ -4,6 +4,10 @@ import static comp1110.universe.Image.*;
 import static comp1110.universe.Universe.*;
 import static comp1110.lib.Functions.*;
 
+import comp1110.lib.*;
+import comp1110.lib.Date;
+import static comp1110.testing.Comp1110Unit.*;
+
 /* The width and height of the world (in pixels) */
 int WORLD_WIDTH = 300;
 int WORLD_HEIGHT = 500;
@@ -64,14 +68,14 @@ record World(Ball b1, Ball b2, Ball b3, Ball b4) {}
  */
 Pair<Integer, Integer> moveDirection(Direction dir) {
     return switch (dir) {
-        case North -> Pair(0,-1);
-        case South -> Pair(0,1);
-        case East -> Pair(1,0);
-        case West -> Pair(-1,0);
-        case NorthEast -> Pair(1,-1);
-        case NorthWest -> Pair(-1,-1);
-        case SouthEast -> Pair(1,1);
-        case SouthWest -> Pair(-1,1);
+        case North -> new Pair<Integer, Integer>(0,-1);
+        case South -> new Pair<Integer, Integer>(0,1);
+        case East -> new Pair<Integer, Integer>(1,0);
+        case West -> new Pair<Integer, Integer>(-1,0);
+        case NorthEast -> new Pair<Integer, Integer>(1,-1);
+        case NorthWest -> new Pair<Integer, Integer>(-1,-1);
+        case SouthEast -> new Pair<Integer, Integer>(1,1);
+        case SouthWest -> new Pair<Integer, Integer>(-1,1);
     };
 }
 
@@ -93,7 +97,7 @@ Pair<Integer, Integer> moveDirection(Direction dir) {
  */
 Ball moveBall(Ball ball) {
     Pair<Integer,Integer> posXY = moveDirection(ball.dir);
-    return new Ball(ball.posX + posXY.first(), ball.posY + posXY.second(), ball.dir, ball.colour);
+    return new Ball(ball.posX + posXY.first() * BALL_SPEED, ball.posY + posXY.second() * BALL_SPEED, ball.dir, ball.colour);
 }
 
 /**
@@ -115,80 +119,80 @@ Ball moveBall(Ball ball) {
  */
 Direction changeBallDirectionAtTop(Direction dir) {
     return switch (dir) {
-        case North -> South;
-        case NorthEast -> SouthEast;
-        case NorthWest -> SouthWest;
+        case North -> Direction.South;
+        case NorthEast -> Direction.SouthEast;
+        case NorthWest -> Direction.SouthWest;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtBottom(Direction dir) {
     return switch (dir) {
-        case South -> North;
-        case SouthEast -> NorthEast;
-        case SouthWest -> NorthWest;
+        case South -> Direction.North;
+        case SouthEast -> Direction.NorthEast;
+        case SouthWest -> Direction.NorthWest;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtLeft(Direction dir) {
     return switch (dir) {
-        case West -> East;
-        case NorthWest -> NorthEast;
-        case SouthWest -> SouthEast;
+        case West -> Direction.East;
+        case NorthWest -> Direction.NorthEast;
+        case SouthWest -> Direction.SouthEast;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtRight(Direction dir) {
     return switch (dir) {
-        case East -> West;
-        case NorthEast -> NorthWest;
-        case SouthEast -> SouthWest;
+        case East -> Direction.West;
+        case NorthEast -> Direction.NorthWest;
+        case SouthEast -> Direction.SouthWest;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtTopLeft(Direction dir) {
     return switch (dir) {
-        case North -> South;
-        case West -> East;
-        case NorthEast -> SouthWest;
-        case NorthWest -> SouthEast;
-        case SouthEast -> SouthWest;
+        case North -> Direction.South;
+        case West -> Direction.East;
+        case NorthEast -> Direction.SouthWest;
+        case NorthWest -> Direction.SouthEast;
+        case SouthEast -> Direction.SouthWest;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtTopRight(Direction dir) {
     return switch (dir) {
-        case North -> South;
-        case East -> West;
-        case NorthEast -> SouthWest;
-        case NorthWest -> SouthWest;
-        case SouthEast -> SouthWest;
+        case North -> Direction.South;
+        case East -> Direction.West;
+        case NorthEast -> Direction.SouthWest;
+        case NorthWest -> Direction.SouthWest;
+        case SouthEast -> Direction.SouthWest;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtBottomLeft(Direction dir) {
     return switch (dir) {
-        case South -> North;
-        case West -> East;
-        case SouthEast -> NorthWest;
-        case SouthWest -> NorthEast;
-        case NorthWest -> SouthEast;
+        case South -> Direction.North;
+        case West -> Direction.East;
+        case SouthEast -> Direction.NorthWest;
+        case SouthWest -> Direction.NorthEast;
+        case NorthWest -> Direction.SouthEast;
         default -> dir;
     };
 }
 
 Direction changeBallDirectionAtBottomRight(Direction dir) {
     return switch (dir) {
-        case South -> North;
-        case East -> West;
-        case SouthEast -> NorthWest;
-        case SouthWest -> NorthEast;
-        case NorthEast -> SouthWest;
+        case South -> Direction.North;
+        case East -> Direction.West;
+        case SouthEast -> Direction.NorthWest;
+        case SouthWest -> Direction.NorthEast;
+        case NorthEast -> Direction.SouthWest;
         default -> dir;
     };
 }
@@ -229,7 +233,7 @@ Ball changeBallDirection(Ball ball) {
     } else if (ball.posX == AtRight) {
         newDir = changeBallDirectionAtRight(ball.dir);
     }
-    return new Ball(ball.posX, ball.posY, ball.dir, ball.colour);
+    return new Ball(ball.posX, ball.posY, newDir, ball.colour);
 }
 
 /**
@@ -295,22 +299,21 @@ World keyEvent(World w, KeyEvent keyEvent) {
 
 /**
  * Process a mouse event: 
- * If the left mouse button is clicked, change all marbles' directions 
+ * If the left mouse is clicked, change all marbles' directions 
  * to a random ordinal direction (NorthEast, NorthWest, SouthEast, SouthWest).
  * Positions and colours remain unchanged.
  * Example:
  *    - Given: World with b1 = Ball(100, 100, North, BLUE),
  *                        b2 = Ball(200, 100, South, RED),
  *                        b3 = Ball(100, 200, East, GREEN),
- *                        b4 = Ball(200, 200, West, BLACK), mouseEventKind = MOUSE_CLICKED, button = "Left"
+ *                        b4 = Ball(200, 200, West, BLACK), mouseEventKind = MOUSE_CLICKED
  *      Expect: A new World  with balls keep their positions and colours, but each has a random ordinal direction.
  * @param w the current world containing four balls
- * @param mouseEventKind the type of mouse event
- * @param button the mouse button string (eg. "Left", "Right")
- * @return a new World with updated directions if left button clicked, otherwise no change
+ * @param mouseEventKind the type of mouse event (eg. LEFT_CLICK, RIGHT_CLICK...)
+ * @return a new World with updated directions if clicked, otherwise no change
  */
-World processMouseEvent(World w, MouseEventKind mouseEventKind, String button) {
-    if (mouseEventKind == MouseEventKind.MOUSE_CLICKED && Equals("Left", button)) {
+World processMouseEvent(World w, MouseEventKind mouseEventKind) {
+    if (mouseEventKind == MouseEventKind.LEFT_CLICK) {
         return new World(
             new Ball(w.b1().posX(), w.b1().posY(), randomOrdinal(), w.b1().colour()),
             new Ball(w.b2().posX(), w.b2().posY(), randomOrdinal(), w.b2().colour()),
@@ -324,7 +327,7 @@ World processMouseEvent(World w, MouseEventKind mouseEventKind, String button) {
 
 /**
  * Handle a full mouse event object.
- * Get the event kind and button string from the given MouseEvent,
+ * Get the event kind from the given MouseEvent,
  * and pass them to processMouseEvent to determine if and how the world's state should change.
  * Example:
  *    - Given: World with four balls, which all moving North, mouseEvent = MouseEvent(MOUSE_CLICKED, "Left")
@@ -332,10 +335,10 @@ World processMouseEvent(World w, MouseEventKind mouseEventKind, String button) {
  *              but each has a random ordinal direction.
  * @param w the current world containing four balls
  * @param mouseEvent the MouseEvent object
- * @return a new World with updated ball directions if left button clicked, otherwise no change
+ * @return a new World with updated ball directions if clicked, otherwise no change
  */
 World mouseEvent(World w, MouseEvent mouseEvent) {
-    return processMouseEvent(w, mouseEvent.kind(), mouseEvent.button());
+    return processMouseEvent(w, mouseEvent.kind());
 }
 
 /**
@@ -365,12 +368,15 @@ World step(World w) {
  */
 Image drawWorld(World w) {
     Image backgroundImage = Rectangle(WORLD_WIDTH, WORLD_HEIGHT, WHITE);
-    Image ballImage1 = Circle(BALL_RADIUS, BLUE);
-    Image ballImage2 = Circle(BALL_RADIUS, RED);
-    Image ballImage3 = Circle(BALL_RADIUS, GREEN);
-    Image ballImage4 = Circle(BALL_RADIUS, BLACK);
-    Image ballOnTopOfBackground = PlaceXY(backgroundImage, ballImage, INITIAL_BALL_POSX, myBall.posY());
-    return ballOnTopOfBackground;
+    Image ballImage1 = Circle(BALL_RADIUS, w.b1().colour());
+    Image ballImage2 = Circle(BALL_RADIUS, w.b2().colour());
+    Image ballImage3 = Circle(BALL_RADIUS, w.b3().colour());
+    Image ballImage4 = Circle(BALL_RADIUS, w.b4().colour());
+    Image ballOnTopOfBackground1 = PlaceXY(backgroundImage, ballImage1, w.b1().posX(), w.b1().posY());
+    Image ballOnTopOfBackground2 = PlaceXY(ballOnTopOfBackground1, ballImage2, w.b2().posX(), w.b2().posY());
+    Image ballOnTopOfBackground3 = PlaceXY(ballOnTopOfBackground2, ballImage3, w.b3().posX(), w.b3().posY());
+    Image ballOnTopOfBackground4 = PlaceXY(ballOnTopOfBackground3, ballImage4, w.b4().posX(), w.b4().posY());
+    return ballOnTopOfBackground4;
 }
 
 /**
@@ -495,7 +501,18 @@ Ball getMarble4(World w) {
 }
 
 /**
- * 
+ * The main entry point of the Bouncing Marbles program, which need these function:
+ *   - Window title: "Bouncing Marbles"
+ *   - Initial state: a World from getInitialState()
+ *   - Drawing function: drawWorld()
+ *   - Step function: step()
+ *   - Key event: keyEvent()
+ *   - Mouse event: mouseEvent()
+ * Example:
+ *   - Given: run the file
+ *   - Expected: a window showing four coloured marbles bouncing in a white rectangle.
+ *               Pressing the Space key changes all marbles' directions to random cardinal directions.
+ *               Left-clicking changes all marbles' directions to random ordinal directions.
  */
 void main() {
     BigBang("Bouncing Marbles", getInitialState(), this::drawWorld, this::step, this::keyEvent, this::mouseEvent);
