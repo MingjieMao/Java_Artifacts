@@ -1024,6 +1024,15 @@ void testTradeAtStarport_withTestEqual() {
  * - Star Chart: "StarChart:destination;RISK=risk;SEC=sector;SYS=system"
  * - Energy Crystal: "EnergyCrystal:POWER=power"
  * - Inert Rock: "InertRock:COLOR=color"
+ * Examples:
+ *     - Given: describeArtifact(new StarChart("Alpha", 3, 5, 7)) 
+ *     - Expect: "StarChart:Alpha;RISK=3;SEC=5;SYS=7"
+ *     - Given: describeArtifact(new EnergyCrystal(10)) 
+ *     - Expect: "EnergyCrystal:POWER=10"
+ *     - Given: describeArtifact(new InertRock("blue")) 
+ *     - Expect: "InertRock:COLOR=blue"
+ * @param artifact the artifact need to describe
+ * @return string representation in log-entry format
  */
 String describeArtifact(Artifact artifact) {
    return switch (artifact) {
@@ -1035,17 +1044,25 @@ String describeArtifact(Artifact artifact) {
 }
 
 // 2. Syntax for a Log Entry
- /**
-  * Parses a log string from a Rational Scavenger that takes one of the following forms:
-  * - ASTEROID | [ownedArtifact] | [foundArtifact]
-  * - TRADING_POST | [ownedArtifact] | [otherScavengersArtifact]
-  * Then it simulates the encounter and returns the artifact the Rational Scavenger possesses after log entry.
-  */
+/**
+ * Parses a log string from a Rational Scavenger that takes one of the following forms:
+ * - ASTEROID | [ownedArtifact] | [foundArtifact]
+ * - TRADING_POST | [ownedArtifact] | [otherScavengersArtifact]
+ * Then it simulates the encounter and returns the artifact the Rational Scavenger possesses after log entry.
+ * Examples:
+ *     - Given: "ASTEROID | StarChart(A,5,1,7) | StarChart(B,3,4,6)""
+ *       Expect: StarChart(B,3,4,6) 
+ *     - Given: "ASTEROID | EnergyCrystal(10) | EnergyCrystal(5)"
+ *       Expect: EnergyCrystal(10) 
+ *     - Given: "ASTEROID | InertRock(blue) | StarChart(C,6,3,5)"
+ *       Expect: InertRock(blue) 
+ * @param log a string representing the log entry
+ * @return Artifact the Rational Scavenger ends up with
+ */
 Artifact parseRationalScavengerLog(String log) {
     // get three part in "ASTEROID | [ownedArtifact] | [foundArtifact]"
     int firstBar = IndexOf("|", log, 0);
     String encounter = SubString(log, 0, firstBar).trim();
-
     int secondBar = IndexOf("|", log, firstBar + 1);
     String ownedStr = SubString(log, firstBar + 1, secondBar).trim();
     String otherStr = SubString(log, secondBar + 1, Length(log)).trim();
@@ -1058,7 +1075,24 @@ Artifact parseRationalScavengerLog(String log) {
  }
 
 /**
- * 
+ * Simulates an encounter between the Rational Scavenger and another artifact.
+ * The behavior depends on the type of encounter:
+ * - "ASTEROID": The Rational Scavenger encounters an artifact in space, 
+ *   uses Rational Scavenger's analysis protocol to decide whether to keep the owned artifact or swap.
+ * - "TRADING_POST": The Rational Scavenger is on a trade by another scavenger, 
+ *   uses the RiskTaker's protocol to determine if the trade is accepted.
+ * The result is the artifact the Rational Scavenger ends up with after the encounter.
+ * Examples:
+ *   - Given: encounter("ASTEROID", StarChart("A",5,2,3), StarChart("B",3,4,6))
+ *     Expect: StarChart("B",3,4,6), swap  
+ *   - Given: encounter("ASTEROID", EnergyCrystal(10), EnergyCrystal(5))
+ *     Expect: EnergyCrystal(10)   , no trade
+ *   - Given: encounter("TRADING_POST", EnergyCrystal(5), InertRock("red"))
+ *     Expect: EnergyCrystal(5)    , no trade
+ * @param encounterType the type of encounter ("ASTEROID" or "TRADING_POST")
+ * @param owned the artifact currently owned by the Rational Scavenger
+ * @param other the encountered artifact (either found in asteroid or in trade)
+ * @return the artifact Rational Scavenger has after the encounter
  */
 Artifact encounter(String encounterType, Artifact owned, Artifact other) {
     if (Equals(encounterType, "ASTEROID")) {
@@ -1069,6 +1103,26 @@ Artifact encounter(String encounterType, Artifact owned, Artifact other) {
 }
 
 // Encounter Asteroid
+/**
+ * Simulates an encounter between a Rational Scavenger and an artifact found on an asteroid.
+ * According to the Rational Scavenger rules:
+ * - If the found artifact is considered VALUABLE, the scavenger replaces their current artifact with it.
+ * - Otherwise, the scavenger keeps their owned artifact.
+ * Examples:
+ *    - Given: owned = StarChart("A", 6, 1, 2), found = StarChart("B", 3, 4, 7)
+ *      Expect: StarChart("B", 3, 4, 7) 
+ *    - Given: owned = EnergyCrystal(10), found = EnergyCrystal(5)
+ *      Expect: EnergyCrystal(10)
+ *    - Given: owned = InertRock("blue"), found = InertRock("red")
+ *      Expect: InertRock("blue")
+ *    - Given: owned = EnergyCrystal(4), found = StarChart("C", 2, 1, 5)
+ *      Expect: EnergyCrystal(4)
+ *    - Given: owned = InertRock("green"), found = StarChart("D", 5, 2, 1)
+ *      Expect: InertRock("green")
+ * @param owned the artifact currently owned by the Rational Scavenger
+ * @param found the artifact found on the asteroid
+ * @return the artifact the scavenger ends up holding after the encounter
+ */
 Artifact handleAsteroidEncounter(Artifact owned, Artifact found) {
     Result result = rationalScavengerAnalysis(owned, found);
     if (isValuable(result)) {
@@ -1079,6 +1133,22 @@ Artifact handleAsteroidEncounter(Artifact owned, Artifact found) {
 }
 
 // Encounter TradingPost
+/**
+ * Simulates a trade encounter at a Trading Post between a Rational Scavenger and a Risk Taker Scavenger.
+ * The Rational Scavenger is the primary actor. They will trade only if:
+ * - The RiskTakerScavenger considers the Rational Scavenger's artifact to be VALUABLE, according to RiskTakerScavengerAnalysis.
+ * - In that case, the Rational Scavenger receives the other scavenger’s artifact. Otherwise, they keep their current artifact.
+ * Examples:
+ *    - Given: owned = InertRock("blue"), other = StarChart("X", 1, 1, 1)
+ *      Expect: StarChart("X", 1, 1, 1)
+ *    - Given: owned = EnergyCrystal(10), other = EnergyCrystal(3)
+ *      Expect: EnergyCrystal(10)
+ *    - Given: owned = EnergyCrystal(3), other = InertRock("red")
+ *      Expect: EnergyCrystal(3)
+ * @param owned the artifact currently owned by the Rational Scavenger
+ * @param other the artifact owned by the Risk Taker Scavenger
+ * @return the artifact the Rational Scavenger ends up owned after the trade
+ */
 Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
     Result riskTakerResult = riskTakerScavengerAnalysis(other, owned);
     if (isValuable(riskTakerResult)) {
@@ -1088,7 +1158,26 @@ Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
 }
 }
 
-// transfer String to StarChart / EnergyCrystal / InertRock
+// Parses String to StarChart / EnergyCrystal / InertRock
+/**
+ * Parses a string representation of an artifact and returns the corresponding Artifact object.
+ * The string must be in one of the following formats:
+ * - StarChart:destination;RISK=risk;SEC=sector;SYS=system
+ * - EnergyCrystal:POWER=power
+ * - InertRock:COLOR=color
+ * The function identifies the type based on the prefix (before the colon ':'),
+ * and extracts the necessary fields to construct the corresponding object.
+ * Examples:
+ *    - Given: "StarChart:Proxima Centauri;RISK=3;SEC=7;SYS=42"
+ *      Expect: new StarChart("Proxima Centauri", 3, 7, 42)
+ *    - Given: "EnergyCrystal:POWER=500"
+ *      Expect: new EnergyCrystal(500)
+ *    - Given: "InertRock:COLOR=quartz"
+ *      Expect: new InertRock("quartz")
+ * @param s a string representation of an artifact
+ * @return an Artifact object corresponding to the input string
+ * @throws IllegalArgumentException if the input string has an unknown or malformed format
+ */
 Artifact parseArtifact(String s) {
     // get type（before the ":"）
     int colonIndex = IndexOf(":", s, 0);
@@ -1140,3 +1229,16 @@ Artifact parseArtifact(String s) {
     throw new IllegalArgumentException("Unknown artifact format: " + s);
 }
 
+void testParseRationalScavengerLog() {
+    String log1 = "ASTEROID | EnergyCrystal:POWER=5 | EnergyCrystal:POWER=10";
+    Artifact result1 = parseRationalScavengerLog(log1);
+    testEqual("EnergyCrystal:POWER=10", describeArtifact(result1), "RationalScavenger should pick higher power EnergyCrystal.");
+
+    String log2 = "ASTEROID | StarChart:A;RISK=5;SEC=3;SYS=9 | StarChart:B;RISK=3;SEC=4;SYS=8";
+    Artifact result2 = parseRationalScavengerLog(log2);
+    testEqual("StarChart:B;RISK=3;SEC=4;SYS=8", describeArtifact(result2), "RationalScavenger should pick lower risk StarChart.");
+
+    String log3 = "ASTEROID | StarChart:A;RISK=5;SEC=3;SYS=9 | EnergyCrystal:POWER=10";
+    Artifact result3 = parseRationalScavengerLog(log3);
+    println("Log 3 result: " + describeArtifact(result3)); 
+}
