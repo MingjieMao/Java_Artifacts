@@ -34,7 +34,12 @@ int AtTop = BALL_RADIUS;
 int AtLeft = BALL_RADIUS;
 int AtRight = WORLD_WIDTH - BALL_RADIUS;
 
-
+/**
+ * Represents the eight possible movement directions for a marble.
+ * Directions:
+ *   - Cardinal: North, South, East, West
+ *   - Ordinal (diagonal): NorthEast, NorthWest, SouthEast, SouthWest
+ */
 enum Direction {
     North,
     South,
@@ -48,9 +53,36 @@ enum Direction {
 
 /**
  * A ball represented by its X and Y position and its movement direction.
+ * Each Ball has:
+ *   - An (x, y) position: the coordinates of the ball's center within the rectangular world.
+ *   - A movement direction: one of the eight possible (cardinal or ordinal).
+ *   - A colour: the visual colour of the ball.
+ * Examples:
+ *   - Ball(100, 150, Direction.North, Colour.BLUE)
+ *     A blue ball located at (100, 150), moving upward.
+ *   - Ball(250, 300, Direction.SouthWest, Colour.RED)
+ *     A red ball located at (250, 300), moving diagonally down-left.
+ * @param posX   The x-coordinate of the ball's center (in pixels).
+ * @param posY   The y-coordinate of the ball's center (in pixels).
+ * @param dir    The current movement direction of the ball.
+ * @param colour The display colour of the ball.
  */
 record Ball(int posX, int posY, Direction dir, Colour colour) {}
 
+/**
+ * Represents the complete state of the bouncing marbles world.
+ * The World contains four balls, each with its own position, movement direction, and colour.
+ * Examples:
+ *   - World(new Ball(100, 150, Direction.North, Colour.BLUE),
+ *         new Ball(200, 150, Direction.South, Colour.RED),
+ *         new Ball(100, 250, Direction.East,  Colour.GREEN),
+ *         new Ball(200, 250, Direction.West,  Colour.BLACK))
+ *     A world where four balls in a square, each moving in a different cardinal direction.
+ * @param b1 The first ball in the world.
+ * @param b2 The second ball in the world.
+ * @param b3 The third ball in the world.
+ * @param b4 The fourth ball in the world.
+ */
 record World(Ball b1, Ball b2, Ball b3, Ball b4) {}
 
 /**
@@ -114,6 +146,7 @@ Ball moveBall(Ball ball) {
  *      Expect: SouthEast
  *    - Given:  dir = East
  *      Expect: East (unchanged because not moving North)
+ * Bottom, Left, Right, TopLeft, TopRight, BottomLeft, and BottomRight corners follow similar logic above.
  * @param dir the current direction of the marble
  * @return the new direction after bouncing on the top edge
  */
@@ -365,8 +398,16 @@ World step(World w) {
 
 /**
  * Draw the world by placing the ball at its current position.
+ * Example:
+ *   - World w = new World(new Ball(100, 100, Direction.North, Colour.BLUE),
+ *                         new Ball(200, 100, Direction.South, Colour.RED),
+ *                         new Ball(100, 200, Direction.East,  Colour.GREEN),
+ *                         new Ball(200, 200, Direction.West,  Colour.BLACK));
+ *   - Image will display four marbles at the given coordinates on a white background.
+ * @param w the current World containing four Balls
+ * @return an Image showing all four marbles placed at their positions on a white background
  */
-Image drawWorld(World w) {
+Image draw(World w) {
     Image backgroundImage = Rectangle(WORLD_WIDTH, WORLD_HEIGHT, WHITE);
     Image ballImage1 = Circle(BALL_RADIUS, w.b1().colour());
     Image ballImage2 = Circle(BALL_RADIUS, w.b2().colour());
@@ -380,7 +421,12 @@ Image drawWorld(World w) {
 }
 
 /**
- * Random direction
+ * Random direction:
+ * Generates a random cardinal direction (North, South, East, or West).
+ * Example:
+ *   - Direction dir = randomCardinal();
+ *     dir could be North, South, East, or West, chosen at random
+ * @return a random Direction from the four cardinal directions
  */
 Direction randomCardinal() {
     int random = RandomNumber(0, 4);
@@ -392,6 +438,14 @@ Direction randomCardinal() {
     };
 }
 
+/**
+ * Random direction:
+ * Generates a random ordinal direction (NorthEast, NorthWest, SouthEast, or SouthWest).
+ * Example:
+ *   - Direction dir = randomOrdinal();
+ *     dir could be NorthEast, NorthWest, SouthEast, or SouthWest, chosen at random
+ * @return a random Direction from the four ordinal directions
+ */
 Direction randomOrdinal() {
     int random = RandomNumber(0, 4);
     return switch (random) {
@@ -402,6 +456,15 @@ Direction randomOrdinal() {
     };
 }
 
+/**
+ * Random direction:
+ * Generates a random direction from all eight possible compass directions
+ * (North, South, East, West, NorthEast, NorthWest, SouthEast, SouthWest).
+ * Example:
+ *   - Direction dir = randomAnyDirection();
+ *     dir could be any of the eight directions, chosen at random
+ * @return a random Direction from all eight compass directions
+ */
 Direction randomAnyDirection() {
     int pick = RandomNumber(0, 8);
     return switch (pick) {
@@ -416,8 +479,16 @@ Direction randomAnyDirection() {
     };
 }
 
-/** 
- * direction
+/**
+ * Checks if the given direction is North.
+ * The following other directions are same as this.
+ * Example:
+ *   - Given: Direction.North
+ *     Expect: true
+ *   - Given: Direction.South
+ *     Expect: false
+ * @param d the direction to check
+ * @return true if d is North, false otherwise
  */
 boolean isNorth(Direction d) {
     return Equals(d, Direction.North);
@@ -452,7 +523,16 @@ boolean isSouthWest(Direction d) {
 }
 
 /** 
- * Return the initial state of your world.
+ * Returns the initial state of the world.
+ * Creates a new World object containing four balls, each with:
+ *   - A predefined initial position (X, Y)
+ *   - A random initial direction (8 possible directions)
+ *   - A colour
+ * Example:
+ *   - World w = getInitialState();
+ *     w.b1() might be at (100, 150), facing East, coloured BLUE
+ *     w.b2() might be at (200, 150), facing SouthWest, coloured RED
+ * @return a new World with four balls initialized
  */
 World getInitialState() {
     return new World(
@@ -465,7 +545,13 @@ World getInitialState() {
 
 /** 
  * The coordinates of the center of a marble.
-*/
+ * Example:
+ *   Ball b = new Ball(120, 200, Direction.North, BLUE);
+ *   getX(b), returns 120
+ * getY is same as getX.
+ * @param m the Ball whose X-coordinate is to be retrieved
+ * @return the X-coordinate of the marble's center
+ */
 int getX(Ball m) {
     return m.posX(); 
 }
@@ -475,14 +561,25 @@ int getY(Ball m) {
 }
 
 /** 
- * The direction of a marble.
+ * Gets the movement direction of a given marble.
+ * Example:
+ *   - Ball b = new Ball(120, 200, Direction.NorthEast, BLUE);
+ *     getDirection(b), returns Direction.NorthEast
+ * @param m the Ball whose direction is to be retrieved
+ * @return the Direction the marble is currently moving in
  */
 Direction getDirection(Ball m) {
     return m.dir();
 }
 
+
 /** 
- * Return the marbles in the world.
+ * Returns the first marble in the world.
+ * Example:
+ *   World w = new World(b1, b2, b3, b4);
+ *   getMarble1(w), returns b1
+ * @param w the World containing the marbles
+ * @return the first Ball in the world
  */
 Ball getMarble1(World w) {
     return w.b1();
@@ -515,10 +612,233 @@ Ball getMarble4(World w) {
  *               Left-clicking changes all marbles' directions to random ordinal directions.
  */
 void main() {
-    BigBang("Bouncing Marbles", getInitialState(), this::drawWorld, this::step, this::keyEvent, this::mouseEvent);
+    BigBang("Bouncing Marbles", getInitialState(), this::draw, this::step, this::keyEvent, this::mouseEvent);
 }
 
+/**
+ * Test the moveDirection function to ensure that each Direction maps to the correct (dx, dy) movement vector.
+ * The Pair represents the x and y step values:
+ *   -x: -1 = left, 0 = no movement, 1 = right
+ *   -y: -1 = up,   0 = no movement, 1 = down
+ */
+void test_moveDirection() {
+    testEqual(new Pair<Integer,Integer>(0,-1), moveDirection(Direction.North), "Should be North(0,-1);");
+    testEqual(new Pair<Integer,Integer>(0,1),  moveDirection(Direction.South), "Should be South(0,1);");
+    testEqual(new Pair<Integer,Integer>(1,0),  moveDirection(Direction.East),  "Should be East(1,0);");
+    testEqual(new Pair<Integer,Integer>(-1,0), moveDirection(Direction.West),  "Should be West(-1,0);");
+
+    testEqual(new Pair<Integer,Integer>(1,-1),  moveDirection(Direction.NorthEast), "Should be NorthEast(1,-1);");
+    testEqual(new Pair<Integer,Integer>(-1,-1), moveDirection(Direction.NorthWest), "Should be NorthWest(-1,-1);");
+    testEqual(new Pair<Integer,Integer>(1,1),   moveDirection(Direction.SouthEast), "Should be SouthEast(1,1);");
+    testEqual(new Pair<Integer,Integer>(-1,1),  moveDirection(Direction.SouthWest), "Should be SouthWest(-1,1);");
+}
+
+/**
+ * Test that moveBall() updates a ball’s position correctly based on its direction,
+ * while keeping its colour and direction unchanged.
+ * Example:
+ *  - North: x should not change, y should decrease by 1
+ *  - SouthEast: x should increase by 1, y should increase by 1
+ */
+void test_moveBall() {
+    Ball b1 = new Ball(100, 200, Direction.North, BLUE);
+    Ball a1 = moveBall(b1);
+    testEqual(100, a1.posX(), "When moving North, x should stay 100, got 1;");
+    testEqual(199, a1.posY(), "When moving North, y should be 199, got 1;");
+    testEqual(Direction.North, a1.dir(), "Direction should remain North, got 1;");
+
+    Ball b2 = new Ball(50, 50, Direction.SouthEast, RED);
+    Ball a2 = moveBall(b2);
+    testEqual(51, a2.posX(), "When moving SouthEast, x should be 51, got 1;");
+    testEqual(51, a2.posY(), "When moving SouthEast, y should be 51, got 1;");
+}
+
+/**
+ * Test that changeBallDirectionAtTop() correctly changes the direction when hitting the top boundary.
+ *  - North -> South
+ *  - NorthEast -> SouthEast
+ *  - NorthWest -> SouthWest
+ *  - East stays East
+ */
+void test_changeAtTop() {
+    testEqual(Direction.South, changeBallDirectionAtTop(Direction.North), "At top edge, North should change to South, got 1;");
+    testEqual(Direction.SouthEast, changeBallDirectionAtTop(Direction.NorthEast), "At top edge, NE should change to SE, got 1;");
+    testEqual(Direction.SouthWest, changeBallDirectionAtTop(Direction.NorthWest), "At top edge, NW should change to SW, got 1;");
+    testEqual(Direction.East, changeBallDirectionAtTop(Direction.East), "At top edge, East should remain East, got 1;");
+}
+
+/**
+ * Test that changeBallDirectionAtBottom() correctly changes the direction
+ * when hitting the bottom boundary.
+ */
+void test_changeAtBottom() {
+    testEqual(Direction.North, changeBallDirectionAtBottom(Direction.South), "At bottom edge, South should change to North, got 1;");
+    testEqual(Direction.NorthEast, changeBallDirectionAtBottom(Direction.SouthEast), "At bottom edge, SE should change to NE, got 1;");
+    testEqual(Direction.NorthWest, changeBallDirectionAtBottom(Direction.SouthWest), "At bottom edge, SW should change to NW, got 1;");
+    testEqual(Direction.West, changeBallDirectionAtBottom(Direction.West), "At bottom edge, West should remain West, got 1;");
+}
+
+/**
+ * Test that changeBallDirectionAtLeft() correctly changes the direction
+ * when hitting the left boundary.
+ */
+void test_changeAtLeft() {
+    testEqual(Direction.East, changeBallDirectionAtLeft(Direction.West), "At left edge, West should change to East, got 1;");
+    testEqual(Direction.NorthEast, changeBallDirectionAtLeft(Direction.NorthWest), "At left edge, NW should change to NE, got 1;");
+    testEqual(Direction.SouthEast, changeBallDirectionAtLeft(Direction.SouthWest), "At left edge, SW should change to SE, got 1;");
+    testEqual(Direction.North, changeBallDirectionAtLeft(Direction.North), "At left edge, North should remain North, got 1;");
+}
+
+/**
+ * Test that changeBallDirectionAtRight() correctly changes the direction
+ * when hitting the right boundary.
+ */
+void test_changeAtRight() {
+    testEqual(Direction.West, changeBallDirectionAtRight(Direction.East), "At right edge, East should change to West, got 1;");
+    testEqual(Direction.NorthWest, changeBallDirectionAtRight(Direction.NorthEast), "At right edge, NE should change to NW, got 1;");
+    testEqual(Direction.SouthWest, changeBallDirectionAtRight(Direction.SouthEast), "At right edge, SE should change to SW, got 1;");
+    testEqual(Direction.South, changeBallDirectionAtRight(Direction.South), "At right edge, South should remain South, got 1;");
+}
+
+/**
+ * Test that changeBallDirection() changes direction at all four corners.
+ */
+void test_changeAtCorners() {
+    Ball tl = new Ball(AtLeft, AtTop, Direction.NorthWest, BLUE);
+    Ball tr = new Ball(AtRight, AtTop, Direction.NorthEast, RED);
+    Ball bl = new Ball(AtLeft, AtBottom, Direction.SouthWest, GREEN);
+    Ball br = new Ball(AtRight, AtBottom, Direction.SouthEast, BLACK);
+    testEqual(false, Equals(changeBallDirection(tl).dir(), Direction.NorthWest), "At top-left, NW should change, got 1;");
+    testEqual(false, Equals(changeBallDirection(tr).dir(), Direction.NorthEast), "At top-right, NE should change, got 1;");
+    testEqual(false, Equals(changeBallDirection(bl).dir(), Direction.SouthWest), "At bottom-left, SW should change, got 1;");
+    testEqual(false, Equals(changeBallDirection(br).dir(), Direction.SouthEast), "At bottom-right, SE should change, got 1;");
+}
+
+/**
+ * Test that changeBallDirection() returns a new Ball object with the same position but possibly a new direction.
+ */
+void test_changeBallDirection_returnsNewBall() {
+    Ball b = new Ball(AtTop, 150, Direction.North, BLUE);
+    Ball c = changeBallDirection(b);
+    testEqual(AtTop, c.posY(), "Y position should remain AtTop, got 1;");
+    testEqual(150, c.posX(), "X position should remain 150, got 1;");
+    testEqual(Direction.South, c.dir(), "At top edge, North should change to South, got 1;");
+}
+
+/**
+ * Test that Ball moves one step when not bouncing.
+ */
+void test_step_oneBall_noBounce() {
+    Ball b = new Ball(100, 100, Direction.East, BLUE);
+    Ball after = step(b);
+    testEqual(101, after.posX(), "Moving East, x should be +1, got 1;");
+    testEqual(100, after.posY(), "Moving East, y should remain, got 1;");
+    testEqual(Direction.East, after.dir(), "Direction should stay East, got 1;");
+}
+
+/**
+ * Test that Ball bounces correctly from the top edge.
+ */
+void test_step_oneBall_bounceTop() {
+    Ball b = new Ball(150, AtTop, Direction.North, BLUE);
+    Ball after = step(b);
+    testEqual(Direction.South, after.dir(), "After top bounce, direction should be South, got 1;");
+    testEqual(150, after.posX(), "After bounce, x should remain 150, got 1;");
+    testEqual(AtTop + 1, after.posY(), "After bounce, should move down 1, got 1;");
+}
+
+/**
+ * Test that World updates positions of all balls.
+ */
+void test_step_world_updates() {
+    World w = new World(
+        new Ball(AtLeft, AtTop, Direction.NorthWest, BLUE),
+        new Ball(AtRight, AtTop, Direction.NorthEast, RED),
+        new Ball(AtLeft, AtBottom, Direction.SouthWest, GREEN),
+        new Ball(AtRight, AtBottom, Direction.SouthEast, BLACK)
+    );
+    World a = step(w);
+    testEqual(false, Equals(a.b1().posX(), w.b1().posX()) && Equals(a.b1().posY(), w.b1().posY()), 
+              "b1 should move at least one step, got 1;");
+    testEqual(false, Equals(a.b4().posX(), w.b4().posX()) && Equals(a.b4().posY(), w.b4().posY()), 
+              "b4 should move at least one step, got 1;");
+}
+
+/**
+ * Test that pressing the Space key sets all marbles’ directions to a cardinal direction.
+ */
+void test_keyEvent_space_sets_cardinals() {
+    World w = getInitialState();
+    World a = keyEvent(w, new KeyEvent(KeyEventKind.KEY_PRESSED, "Space"));
+    boolean b1Card = isNorth(a.b1().dir()) || isSouth(a.b1().dir()) || isEast(a.b1().dir())  || isWest(a.b1().dir());
+    boolean b4Card = isNorth(a.b4().dir()) || isSouth(a.b4().dir()) || isEast(a.b4().dir())  || isWest(a.b4().dir());
+    testEqual(true, b1Card, "After Space, b1 should be cardinal, got 1;");
+    testEqual(true, b4Card, "After Space, b4 should be cardinal, got 1;");
+}
+
+/**
+ * Test that left mouse click sets all marbles’ directions to an ordinal direction.
+ */
+void test_mouseEvent_left_sets_ordinals() {
+    World w = getInitialState();
+    World a = mouseEvent(w, new MouseEvent(MouseEventKind.LEFT_CLICK, 0, 0));
+    boolean b2Ord = isNorthEast(a.b2().dir()) || isNorthWest(a.b2().dir()) || isSouthEast(a.b2().dir()) || isSouthWest(a.b2().dir());
+    boolean b3Ord = isNorthEast(a.b3().dir()) || isNorthWest(a.b3().dir()) || isSouthEast(a.b3().dir()) || isSouthWest(a.b3().dir());
+    testEqual(true, b2Ord, "After left click, b2 should be ordinal, got 1;");
+    testEqual(true, b3Ord, "After left click, b3 should be ordinal, got 1;");
+}
+
+/**
+ * Test all get functions for marbles and ball properties.
+ */
+void test_get() {
+    World w = getInitialState();
+    testEqual(w.b1(), getMarble1(w), "getMarble1 returned wrong value, got 1;");
+    testEqual(w.b2(), getMarble2(w), "getMarble2 returned wrong value, got 1;");
+    testEqual(w.b3(), getMarble3(w), "getMarble3 returned wrong value, got 1;");
+    testEqual(w.b4(), getMarble4(w), "getMarble4 returned wrong value, got 1;");
+    Ball b = w.b1();
+    testEqual(b.posX(), getX(b), "getX should return posX, got 1;");
+    testEqual(b.posY(), getY(b), "getY should return posY, got 1;");
+    testEqual(b.dir(), getDirection(b), "getDirection should return dir, got 1;");
+}
+
+/**
+ * Test that drawWorld() never returns null.
+ */
+void test_draw_notNull() {
+    Image img = drawWorld(getInitialState());
+    testEqual(false, Equals(img, null), "drawWorld should not return null, got 1;");
+}
+
+/**
+ * Basic test for getInitialState(): ensures marbles are inside correctly.
+ */
+void test_getInitialState_basic() {
+    World w = getInitialState();
+    testEqual(true, w.b1().posX() >= 0 && w.b1().posX() <= WORLD_WIDTH, "b1 x should be inside canvas, got 1;");
+    testEqual(true, w.b1().posY() >= 0 && w.b1().posY() <= WORLD_HEIGHT, "b1 y should be inside canvas, got 1;");
+    testEqual(true, Equals(w.b4().colour(), BLACK), "b4 colour should be BLACK, got 1;");
+}
+
+/** 
+ * test entry point.
+ */
 void test() {
-
+    runAsTest(this::test_moveDirection);
+    runAsTest(this::test_moveBall);
+    runAsTest(this::test_changeAtTop);
+    runAsTest(this::test_changeAtBottom);
+    runAsTest(this::test_changeAtLeft);
+    runAsTest(this::test_changeAtRight);
+    runAsTest(this::test_changeAtCorners);
+    runAsTest(this::test_changeBallDirection_returnsNewBall);
+    runAsTest(this::test_step_oneBall_noBounce);
+    runAsTest(this::test_step_oneBall_bounceTop);
+    runAsTest(this::test_step_world_updates);
+    runAsTest(this::test_keyEvent_space_sets_cardinals);
+    runAsTest(this::test_mouseEvent_left_sets_ordinals);
+    runAsTest(this::test_get);
+    runAsTest(this::test_draw_notNull);
+    runAsTest(this::test_getInitialState_basic);
 }
-
