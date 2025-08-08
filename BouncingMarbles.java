@@ -93,7 +93,7 @@ Pair<Integer, Integer> moveDirection(Direction dir) {
  */
 Ball moveBall(Ball ball) {
     Pair<Integer,Integer> posXY = moveDirection(ball.dir);
-    return new Ball(ball.posX+first(posXY), ball.posY+second(posXY), ball.dir, ball.colour);
+    return new Ball(ball.posX + posXY.first(), ball.posY + posXY.second(), ball.dir, ball.colour);
 }
 
 /**
@@ -245,41 +245,125 @@ Ball changeBallDirection(Ball ball) {
  * @param myBall the ball before updating
  * @return a new Ball after bouncing and moving one step
  */
-Ball step(Ball bl) {
+Ball step(Ball b) {
     return moveBall(changeBallDirection(b));
 } 
 
 /**
- * Process a key event; if the spacebar is pressed, reverse direction.
- * @param b the current ball
- * @param keyEventKind the type of keyboard event (pressed, released, etc.)
- * @param key the key string (e.g. "Space", "A", "ArrowUp")
- * @return a new Ball with updated direction if SPACE is pressed, else unchanged
+ * Process a key event: 
+ * If the spacebar is pressed, change all marbles' directions 
+ * to a random cardinal direction (North, South, East, West).
+ * Positions and colours remain unchanged.
+ *  Example:
+ *    - Given: World with b1 = Ball(100, 100, NorthEast, BLUE),
+ *                        b2 = Ball(200, 100, NorthEast, RED),
+ *                        b3 = Ball(100, 200, NorthEast, GREEN),
+ *                        b4 = Ball(200, 200, NorthEast, BLACK), keyEventKind = KEY_PRESSED, key = "Space"
+ *      Expect: A new World where b1–b4 keep their positions and colours, but each has a random cardinal direction.
+ * @param w the current world containing four balls
+ * @param keyEventKind the type of keyboard event (eg. KEY_PRESSED, KEY_RELEASED, KEY_TYPED)
+ * @param key the key string ("Space")
+ * @return a new World with updated directions if pressed, otherwise no change
  */
-Ball processKeyEvent(Ball b, KeyEventKind keyEventKind, String key)
-{
+World processKeyEvent(World w, KeyEventKind keyEventKind, String key) {
   if (keyEventKind == KeyEventKind.KEY_PRESSED && Equals("Space",key)) {
-      return changeBallDirection(b);
+    return new World(
+        new Ball(w.b1().posX(), w.b1().posY(), randomCardinal(), w.b1().colour()),
+        new Ball(w.b2().posX(), w.b2().posY(), randomCardinal(), w.b2().colour()),
+        new Ball(w.b3().posX(), w.b3().posY(), randomCardinal(), w.b3().colour()),
+        new Ball(w.b4().posX(), w.b4().posY(), randomCardinal(), w.b4().colour())
+    );
   } else {
-      return b;
+    return w;
   }
 }
 
 /**
  * Handle a full key event object.
+ * Get the event kind and key string from the given KeyEvent,
+ * and passes them to processKeyEvent to determine if and how the world's state should change.
+ * Example:
+ *    - Given:  World w with four balls all moving NorthEast, keyEvent = KeyEvent(KEY_PRESSED, "Space")
+ *      Expect: Returns a new World where all balls keep their positions and colours, but each has a random cardinal direction.
+ * @param w the current world containing four balls
+ * @param keyEvent the KeyEvent object
+ * @return a new World with updated ball directions if pressed, otherwise no change
  */
-Ball keyEvent(Ball b, KeyEvent keyEvent) {
-    return processKeyEvent(b, keyEvent.kind(), keyEvent.key());
+World keyEvent(World w, KeyEvent keyEvent) {
+    return processKeyEvent(w, keyEvent.kind(), keyEvent.key());
 }
 
+/**
+ * Process a mouse event: 
+ * If the left mouse button is clicked, change all marbles' directions 
+ * to a random ordinal direction (NorthEast, NorthWest, SouthEast, SouthWest).
+ * Positions and colours remain unchanged.
+ * Example:
+ *    - Given: World with b1 = Ball(100, 100, North, BLUE),
+ *                        b2 = Ball(200, 100, South, RED),
+ *                        b3 = Ball(100, 200, East, GREEN),
+ *                        b4 = Ball(200, 200, West, BLACK), mouseEventKind = MOUSE_CLICKED, button = "Left"
+ *      Expect: A new World  with balls keep their positions and colours, but each has a random ordinal direction.
+ * @param w the current world containing four balls
+ * @param mouseEventKind the type of mouse event
+ * @param button the mouse button string (eg. "Left", "Right")
+ * @return a new World with updated directions if left button clicked, otherwise no change
+ */
+World processMouseEvent(World w, MouseEventKind mouseEventKind, String button) {
+    if (mouseEventKind == MouseEventKind.MOUSE_CLICKED && Equals("Left", button)) {
+        return new World(
+            new Ball(w.b1().posX(), w.b1().posY(), randomOrdinal(), w.b1().colour()),
+            new Ball(w.b2().posX(), w.b2().posY(), randomOrdinal(), w.b2().colour()),
+            new Ball(w.b3().posX(), w.b3().posY(), randomOrdinal(), w.b3().colour()),
+            new Ball(w.b4().posX(), w.b4().posY(), randomOrdinal(), w.b4().colour())
+        );
+    } else {
+        return w;
+    }
+}
+
+/**
+ * Handle a full mouse event object.
+ * Get the event kind and button string from the given MouseEvent,
+ * and pass them to processMouseEvent to determine if and how the world's state should change.
+ * Example:
+ *    - Given: World with four balls, which all moving North, mouseEvent = MouseEvent(MOUSE_CLICKED, "Left")
+ *      Expect: Returns a new World where all balls keep their positions and colours,
+ *              but each has a random ordinal direction.
+ * @param w the current world containing four balls
+ * @param mouseEvent the MouseEvent object
+ * @return a new World with updated ball directions if left button clicked, otherwise no change
+ */
+World mouseEvent(World w, MouseEvent mouseEvent) {
+    return processMouseEvent(w, mouseEvent.kind(), mouseEvent.button());
+}
+
+/**
+ * Advance the world by one time step.
+ * - If it is at a boundary, adjust its direction (corner bounce or edge bounce).
+ * - Move the ball one step in its current direction.
+ * Example:
+ *    - Given: World with b1 = Ball(0, 0, NorthWest, BLUE),
+ *                        b2 = Ball(299, 0, NorthEast, RED),
+ *                        b3 = Ball(0, 499, SouthWest, GREEN),
+ *                        b4 = Ball(299, 499, SouthEast, BLACK),
+ *      Expect: A new World where each ball bounces off the corner and moves one step away from the wall.
+ * @param w the current world containing four balls
+ * @return a new World with all balls updated for the next step
+ */
 World step(World w) {
-    return new World();
+    return new World(
+        moveBall(changeBallDirection(w.b1())),
+        moveBall(changeBallDirection(w.b2())),
+        moveBall(changeBallDirection(w.b3())),
+        moveBall(changeBallDirection(w.b4()))
+    );
 }
 
 /**
  * Draw the world by placing the ball at its current position.
  */
-Image drawWorld(Ball myBall) {
+Image drawWorld(World w) {
     Image backgroundImage = Rectangle(WORLD_WIDTH, WORLD_HEIGHT, WHITE);
     Image ballImage1 = Circle(BALL_RADIUS, BLUE);
     Image ballImage2 = Circle(BALL_RADIUS, RED);
@@ -289,9 +373,132 @@ Image drawWorld(Ball myBall) {
     return ballOnTopOfBackground;
 }
 
+/**
+ * Random direction
+ */
+Direction randomCardinal() {
+    int random = RandomNumber(0, 4);
+    return switch (random) {
+        case 0 -> Direction.North;
+        case 1 -> Direction.South;
+        case 2 -> Direction.East;
+        default -> Direction.West;
+    };
+}
+
+Direction randomOrdinal() {
+    int random = RandomNumber(0, 4);
+    return switch (random) {
+        case 0 -> Direction.NorthEast;
+        case 1 -> Direction.NorthWest;
+        case 2 -> Direction.SouthEast;
+        default -> Direction.SouthWest;
+    };
+}
+
+Direction randomAnyDirection() {
+    int pick = RandomNumber(0, 8);
+    return switch (pick) {
+        case 0 -> Direction.North;
+        case 1 -> Direction.South;
+        case 2 -> Direction.East;
+        case 3 -> Direction.West;
+        case 4 -> Direction.NorthEast;
+        case 5 -> Direction.NorthWest;
+        case 6 -> Direction.SouthEast;
+        default -> Direction.SouthWest;
+    };
+}
+
+/** 
+ * direction
+ */
+boolean isNorth(Direction d) {
+    return Equals(d, Direction.North);
+}
+
+boolean isSouth(Direction d) {
+    return Equals(d, Direction.South);
+}
+
+boolean isEast(Direction d) {
+    return Equals(d, Direction.East);
+}
+
+boolean isWest(Direction d) {
+    return Equals(d, Direction.West);
+}
+
+boolean isNorthEast(Direction d) {
+    return Equals(d, Direction.NorthEast);
+}
+
+boolean isNorthWest(Direction d) {
+    return Equals(d, Direction.NorthWest);
+}
+
+boolean isSouthEast(Direction d) {
+    return Equals(d, Direction.SouthEast);
+}
+
+boolean isSouthWest(Direction d) {
+    return Equals(d, Direction.SouthWest);
+}
+
+/** 
+ * Return the initial state of your world.
+ */
+World getInitialState() {
+    return new World(
+        new Ball(INITIAL_BALL1_POSX, INITIAL_BALL1_POSY, randomAnyDirection(), BLUE),
+        new Ball(INITIAL_BALL2_POSX, INITIAL_BALL2_POSY, randomAnyDirection(), RED),
+        new Ball(INITIAL_BALL3_POSX, INITIAL_BALL3_POSY, randomAnyDirection(), GREEN),
+        new Ball(INITIAL_BALL4_POSX, INITIAL_BALL4_POSY, randomAnyDirection(), BLACK)
+    );
+}
+
+/** 
+ * The coordinates of the center of a marble.
+*/
+int getX(Ball m) {
+    return m.posX(); 
+}
+
+int getY(Ball m) {
+    return m.posY();
+}
+
+/** 
+ * The direction of a marble.
+ */
+Direction getDirection(Ball m) {
+    return m.dir();
+}
+
+/** 
+ * Return the marbles in the world.
+ */
+Ball getMarble1(World w) {
+    return w.b1();
+}
+
+Ball getMarble2(World w) {
+    return w.b2();
+}
+
+Ball getMarble3(World w) {
+    return w.b3();
+}
+
+Ball getMarble4(World w) {
+    return w.b4();
+}
+
+/**
+ * 
+ */
 void main() {
-    Ball ball = new Ball();
-    BigBang("Bouncing Ball", ball, this::drawWorld, this::step, this::keyEvent);
+    BigBang("Bouncing Marbles", getInitialState(), this::drawWorld, this::step, this::keyEvent, this::mouseEvent);
 }
 
 void test() {

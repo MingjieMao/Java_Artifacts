@@ -6,7 +6,7 @@ time-on-task:
 - task: "Part 3"
   time: 230 
 - task: "Part 4"
-  time: 180
+  time: 240
 sessions: 
 - start: 2025-08-04 20:10
   end: 2025-08-04 21:10
@@ -83,3 +83,6 @@ sessions:
 - start: 2025-08-08 10:20
   end: 2025-08-08 11:20
   notes: "worked on part4"
+- start: 2025-08-08 11:20
+  end: 2025-08-08 12:20
+  notes: "continue worked on part4"
