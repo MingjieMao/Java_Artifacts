@@ -37,6 +37,20 @@ enum Result {
 record StarChart(String dest, int risk, int sector, int system) implements Artifact {}
 
 /**
+ * Factory function to create a StarChart artifact.
+ * Example:
+ *   - makeStarChart("C", 2, 3, 4) → StarChart("C", 2, 3, 4)
+ * @param dest   the destination of the StarChart
+ * @param risk   the risk factor of the StarChart
+ * @param sector the sector of the origin point of the StarChart
+ * @param system the system of the origin point of the StarChart
+ * @return a new StarChart
+ */
+StarChart makeStarChart(String dest, int risk, int sector, int system) {
+    return new StarChart(dest, risk, sector, system);
+}
+
+/**
  * An EnergyCrystal is a Artifact characterized by its power level. 
  * Examples:
  * - A EnergyCrystal of power level 1
@@ -44,6 +58,17 @@ record StarChart(String dest, int risk, int sector, int system) implements Artif
  * @param power - the power level of EnergyCrystal
  */
 record EnergyCrystal(int power) implements Artifact {}
+
+/**
+ * Factory function to create an EnergyCrystal artifact.
+ * Example:
+ *   - makeEnergyCrystal(5) → EnergyCrystal(5)
+ * @param power the power level of the EnergyCrystal
+ * @return a new EnergyCrystal instance
+ */
+EnergyCrystal makeEnergyCrystal(int power) {
+    return new EnergyCrystal(power);
+}
 
 /**
  * An InertRock is a record representing an inert and mysterious object.
@@ -54,6 +79,17 @@ record EnergyCrystal(int power) implements Artifact {}
  * @param color - the color of InertRock
  */
 record InertRock(String color) implements Artifact {}
+
+/**
+ * Factory function to create an InertRock artifact.
+ * Example:
+ *   - makeInertRock("blue") → InertRock("blue")
+ * @param color the color of the InertRock
+ * @return a new InertRock
+ */
+InertRock makeInertRock(String color) {
+    return new InertRock(color);
+}
 
 // [A] is type for an artifact.
 /**
@@ -680,16 +716,16 @@ void main() {
  * Scavenger s2 = new Scavenger("Alex", new EnergyCrystal(5), Artifacts::riskTakerScavengerAnalysis);
  * Scavenger s3 = new Scavenger("Luna", new InertRock("blue"), Artifacts::rationalScavengerAnalysis);
  * @param name The unique name of the scavenger
- * @param cargo The single artifact in the scavenger's cargo hold
  * @param analysisFunc The scavenger's personal evaluation protocol implemented as a BiFunction:
  *                     - First Artifact: the ownedArtifact
  *                     - Second Artifact: the new foundArtifact
  *                     - Returns: a Result indicating the evaluation outcome
+ * @param cargo The single artifact in the scavenger's cargo hold
  */
-record Scavenger(String name, Artifact cargo, BiFunction<Artifact, Artifact, Result> analysisFunc) {}
+record Scavenger(String name, BiFunction<Artifact, Artifact, Result> analysisFunc, Artifact cargo) {}
 
-Scavenger makeScavenger(String name, Artifact cargo, BiFunction<Artifact,Artifact,Result> analysisFunc) {
-    return new Scavenger(name, cargo, analysisFunc);
+Scavenger makeScavenger(String name, BiFunction<Artifact,Artifact,Result> analysisFunc, Artifact cargo) {
+    return new Scavenger(name, analysisFunc, cargo);
 }
 
 /**
@@ -784,7 +820,7 @@ Result evaluateArtifact(BiFunction<Artifact,Artifact,Result> protocol, Artifact 
  * @return Pair<Scavenger, Artifact>: (updated scavenger, artifact that was replaced)
  */
 Pair<Scavenger, Artifact> swapArtifacts(Scavenger scavenger, Artifact foundArtifact) {
-    Scavenger updated = new Scavenger(scavenger.name(), foundArtifact, scavenger.analysisFunc());
+    Scavenger updated = new Scavenger(scavenger.name(), scavenger.analysisFunc(), foundArtifact);
     return new Pair<Scavenger, Artifact>(updated, scavenger.cargo());
 }
 
@@ -825,7 +861,7 @@ Pair<Scavenger, Artifact> handleHazardousArtifact(Scavenger scavenger, Artifact 
         return swapArtifacts(scavenger, foundArtifact);
     } else {
         Artifact destroyed = new InertRock("dull grey");
-        Scavenger updated = new Scavenger(scavenger.name(), destroyed, scavenger.analysisFunc());
+        Scavenger updated = new Scavenger(scavenger.name(), scavenger.analysisFunc(), destroyed);
         return new Pair<Scavenger, Artifact>(updated, foundArtifact);
     }
 }
@@ -840,8 +876,8 @@ void testDifferentStrategies() {
     Artifact blueInertRock = new InertRock("blue");
 
     // Both own same StarChart, found lowerStarChart
-    Scavenger rationalScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::rationalScavengerAnalysis);
-    Scavenger riskTakerScavengerWithStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::riskTakerScavengerAnalysis);
+    Scavenger rationalScavengerWithStarChart = new Scavenger("M", this::rationalScavengerAnalysis, new StarChart("M", 5, 1, 7));
+    Scavenger riskTakerScavengerWithStarChart = new Scavenger("M", this::riskTakerScavengerAnalysis, new StarChart("M", 5, 1, 7));
     println("1. Found lowerStarChart when they both owned StarChart(M, 5, 1, 7): ");
     Pair<Scavenger, Artifact> rationalScavengerResult1 = exploreAsteroid(rationalScavengerWithStarChart, lowerStarChart);
     Pair<Scavenger, Artifact> riskTakerScavengerResult1 = exploreAsteroid(riskTakerScavengerWithStarChart, lowerStarChart);
@@ -857,8 +893,8 @@ void testDifferentStrategies() {
 
     // Both own same EnergyCrystal, found higherEnergyCrystal
     println("3. Found higherEnergyCrystal when they both owned EnergyCrystal(5): ");
-    Scavenger rationalScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::rationalScavengerAnalysis);
-    Scavenger riskTakerScavengerWithEnergyCrystal = new Scavenger("M", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
+    Scavenger rationalScavengerWithEnergyCrystal = new Scavenger("M", this::rationalScavengerAnalysis, new EnergyCrystal(5));
+    Scavenger riskTakerScavengerWithEnergyCrystal = new Scavenger("M", this::riskTakerScavengerAnalysis, new EnergyCrystal(5));
     Pair<Scavenger, Artifact> rationalScavengerResult3 = exploreAsteroid(rationalScavengerWithEnergyCrystal, higherEnergyCrystal);
     Pair<Scavenger, Artifact> riskTakerScavengerResult3 = exploreAsteroid(riskTakerScavengerWithEnergyCrystal, higherEnergyCrystal);
     println("Rational Scavenger: " + rationalScavengerResult3.first().cargo());     // EnergyCrystal(8)
@@ -866,8 +902,8 @@ void testDifferentStrategies() {
 
     // Both own same InertRock, found blueInertRock
     println("4. Found blueInertRock when they both owned redInertRock: ");
-    Scavenger rationalScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
-    Scavenger riskTakerScavengerWithInertRock = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Scavenger rationalScavengerWithInertRock = new Scavenger("M", this::rationalScavengerAnalysis, new InertRock("red"));
+    Scavenger riskTakerScavengerWithInertRock = new Scavenger("M", this::riskTakerScavengerAnalysis, new InertRock("red"));
     Pair<Scavenger, Artifact> rationalScavengerResult4 = exploreAsteroid(rationalScavengerWithInertRock, blueInertRock);
     Pair<Scavenger, Artifact> riskTakerScavengerResult4 = exploreAsteroid(riskTakerScavengerWithInertRock, blueInertRock);
     println("Rational Scavenger: " + rationalScavengerResult4.first().cargo());     // InertRock("red")
@@ -881,8 +917,8 @@ void testDifferentStrategies_withTestEqual() {
     Artifact blueInertRock = new InertRock("blue");
 
     // Both own same StarChart, found lowerStarChart
-    Scavenger rationalStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::rationalScavengerAnalysis);
-    Scavenger riskTakerStarChart = new Scavenger("M", new StarChart("M", 5, 1, 7), this::riskTakerScavengerAnalysis);
+    Scavenger rationalStarChart = new Scavenger("M", this::rationalScavengerAnalysis, new StarChart("M", 5, 1, 7));
+    Scavenger riskTakerStarChart = new Scavenger("M", this::riskTakerScavengerAnalysis, new StarChart("M", 5, 1, 7));
     Result result1_rational = rationalScavengerAnalysis(rationalStarChart.cargo(), lowerStarChart);
     Result result1_risk = riskTakerScavengerAnalysis(riskTakerStarChart.cargo(), lowerStarChart);
     testEqual(true, isValuable(result1_rational), "Rational: lower risk StarChart is valuable");
@@ -895,16 +931,16 @@ void testDifferentStrategies_withTestEqual() {
     testEqual(true, isValuable(result2_risk), "RiskTaker: always takes StarChart");
 
     // Both own same EnergyCrystal, found higherEnergyCrystal
-    Scavenger rationalEnergy = new Scavenger("M", new EnergyCrystal(5), this::rationalScavengerAnalysis);
-    Scavenger riskTakerEnergy = new Scavenger("M", new EnergyCrystal(5), this::riskTakerScavengerAnalysis);
+    Scavenger rationalEnergy = new Scavenger("M", this::rationalScavengerAnalysis, new EnergyCrystal(5));
+    Scavenger riskTakerEnergy = new Scavenger("M", this::riskTakerScavengerAnalysis, new EnergyCrystal(5));
     Result result3_rational = rationalScavengerAnalysis(rationalEnergy.cargo(), higherEnergyCrystal);
     Result result3_risk = riskTakerScavengerAnalysis(riskTakerEnergy.cargo(), higherEnergyCrystal);
     testEqual(true, isValuable(result3_rational), "Rational: higher power EnergyCrystal is valuable");
     testEqual(true, isValuable(result3_risk), "RiskTaker: higher power EnergyCrystal is valuable");
 
     // Both own same InertRock, found blueInertRock
-    Scavenger rationalInert = new Scavenger("M", new InertRock("red"), this::rationalScavengerAnalysis);
-    Scavenger riskTakerInert = new Scavenger("M", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Scavenger rationalInert = new Scavenger("M", this::rationalScavengerAnalysis, new InertRock("red"));
+    Scavenger riskTakerInert = new Scavenger("M", this::riskTakerScavengerAnalysis, new InertRock("red"));
     Result result4_rational = rationalScavengerAnalysis(rationalInert.cargo(), blueInertRock);
     Result result4_risk = riskTakerScavengerAnalysis(riskTakerInert.cargo(), blueInertRock);
     testEqual(true, isIncompatible(result4_rational), "Rational: different color InertRock is incompatible");
@@ -935,8 +971,8 @@ Pair<Scavenger, Scavenger> tradeAtStarport(Scavenger scavengerA, Scavenger scave
     Result resultA = evaluateArtifact(scavengerA.analysisFunc(), scavengerA.cargo(), scavengerB.cargo());
     Result resultB = evaluateArtifact(scavengerB.analysisFunc(), scavengerB.cargo(), scavengerA.cargo());
     if (Equals(resultA, Result.isValuable) && Equals(resultB, Result.isValuable)) {
-        Scavenger newScavengerA = new Scavenger(scavengerA.name(), scavengerB.cargo(), scavengerA.analysisFunc());
-        Scavenger newScavengerB = new Scavenger(scavengerB.name(), scavengerA.cargo(), scavengerB.analysisFunc());
+        Scavenger newScavengerA = new Scavenger(scavengerA.name(), scavengerA.analysisFunc(), scavengerB.cargo());
+        Scavenger newScavengerB = new Scavenger(scavengerB.name(), scavengerB.analysisFunc(), scavengerA.cargo());
         return new Pair<Scavenger, Scavenger>(newScavengerA, newScavengerB);
     }
     return new Pair<Scavenger, Scavenger>(scavengerA, scavengerB);
@@ -944,32 +980,32 @@ Pair<Scavenger, Scavenger> tradeAtStarport(Scavenger scavengerA, Scavenger scave
 
 void testTradeAtStarport() {
     // Case 1: Both value each other (Trade happens)
-    Scavenger rational1 = makeScavenger("RationalScavenger", new StarChart("A", 5, 2, 3), this::rationalScavengerAnalysis);
-    Scavenger riskTaker1 = makeScavenger("RiskTakerScavenger", new StarChart("B", 3, 4, 6), this::riskTakerScavengerAnalysis);
+    Scavenger rational1 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new StarChart("A", 5, 2, 3));
+    Scavenger riskTaker1 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new StarChart("B", 3, 4, 6));
     Pair<Scavenger, Scavenger> result1 = tradeAtStarport(rational1, riskTaker1);
     println("Case 1 (Both valuable):");
     println(getName(result1.first()) + " has: " + getCargo(result1.first()));    // Expect: StarChart("B", 3, 4, 6)
     println(getName(result1.second()) + " has: " + getCargo(result1.second()));  // Expect: StarChart("A", 5, 2, 3)
 
     // Case 2: rationalScavenger thinks VALUABLE, riskTakerScavenger thinks MUNDANE (no trade)
-    Scavenger rational2 = makeScavenger("RationalScavenger", new EnergyCrystal(5), this::rationalScavengerAnalysis);
-    Scavenger riskTaker2 = makeScavenger("RiskTakerScavenger", new EnergyCrystal(10), this::riskTakerScavengerAnalysis);
+    Scavenger rational2 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new EnergyCrystal(5));
+    Scavenger riskTaker2 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new EnergyCrystal(10));
     Pair<Scavenger, Scavenger> result2 = tradeAtStarport(rational2, riskTaker2);
     println("Case 2 (Rational thinks valuable, RiskTaker does not):");
     println(getName(result2.first()) + " has: " + getCargo(result2.first()));    // Expect: EnergyCrystal 10
     println(getName(result2.second()) + " has: " + getCargo(result2.second()));  // Expect: EnergyCrystal 5
 
     // CASE 3: rationalScavenger thinks MUNDANE, riskTakerScavenger thinks VALUABLE (no trade)
-    Scavenger rational3 = makeScavenger("RationalScavenger", new StarChart("A", 5, 2, 3), this::rationalScavengerAnalysis);
-    Scavenger riskTaker3 = makeScavenger("RiskTakerScavenger", new EnergyCrystal(10), this::riskTakerScavengerAnalysis);
+    Scavenger rational3 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new StarChart("A", 5, 2, 3));
+    Scavenger riskTaker3 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new EnergyCrystal(10));
     Pair<Scavenger, Scavenger> result3 = tradeAtStarport(rational3, riskTaker3);
     println("\nCase 3 (RiskTaker thinks valuable, Rational does NOT):");
     println(getName(result3.first()) + " has: " + getCargo(result3.first()));  // Expect: EnergyCrystal 5
     println(getName(result3.second()) + " has: " + getCargo(result3.second())); // Expect: EnergyCrystal 10
 
     // CASE 4: Neither finds the other's cargo VALUABLE (no trade)
-    Scavenger rational4 = makeScavenger("RationalScavenger", new EnergyCrystal(5), this::rationalScavengerAnalysis);
-    Scavenger riskTaker4 = makeScavenger("RiskTakerScavenger", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Scavenger rational4 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new EnergyCrystal(5));
+    Scavenger riskTaker4 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new InertRock("red"));
     Pair<Scavenger, Scavenger> result4 = tradeAtStarport(rational4, riskTaker4);
     println("\nCase 4 (neither finds valuable):");
     println(getName(result4.first()) + " has: " + getCargo(result4.first()));  // Expect: InertRock blue
@@ -978,8 +1014,8 @@ void testTradeAtStarport() {
 
 void testTradeAtStarport_withTestEqual() {
     // Case 1: Both value each other (should trade)
-    Scavenger rational1 = makeScavenger("RationalScavenger", new StarChart("A", 5, 2, 3), this::rationalScavengerAnalysis);
-    Scavenger riskTaker1 = makeScavenger("RiskTakerScavenger", new StarChart("B", 3, 4, 6), this::riskTakerScavengerAnalysis);
+    Scavenger rational1 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new StarChart("A", 5, 2, 3));
+    Scavenger riskTaker1 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new StarChart("B", 3, 4, 6));
     Pair<Scavenger, Scavenger> result1 = tradeAtStarport(rational1, riskTaker1);
     testEqual(true,
         Equals(getCargo(result1.first()), new StarChart("B", 3, 4, 6)) &&
@@ -988,8 +1024,8 @@ void testTradeAtStarport_withTestEqual() {
     );
 
     // Case 2: Rational thinks VALUABLE, RiskTaker thinks MUNDANE → no trade
-    Scavenger rational2 = makeScavenger("RationalScavenger", new EnergyCrystal(5), this::rationalScavengerAnalysis);
-    Scavenger riskTaker2 = makeScavenger("RiskTakerScavenger", new EnergyCrystal(10), this::riskTakerScavengerAnalysis);
+    Scavenger rational2 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new EnergyCrystal(5));
+    Scavenger riskTaker2 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new EnergyCrystal(10));
     Pair<Scavenger, Scavenger> result2 = tradeAtStarport(rational2, riskTaker2);
     testEqual(true,
         Equals(getCargo(result2.first()), new EnergyCrystal(5)) &&
@@ -998,8 +1034,8 @@ void testTradeAtStarport_withTestEqual() {
     );
 
     // Case 3: Rational thinks MUNDANE, RiskTaker thinks VALUABLE → no trade
-    Scavenger rational3 = makeScavenger("RationalScavenger", new StarChart("A", 5, 2, 3), this::rationalScavengerAnalysis);
-    Scavenger riskTaker3 = makeScavenger("RiskTakerScavenger", new EnergyCrystal(10), this::riskTakerScavengerAnalysis);
+    Scavenger rational3 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new StarChart("A", 5, 2, 3));
+    Scavenger riskTaker3 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new EnergyCrystal(10));
     Pair<Scavenger, Scavenger> result3 = tradeAtStarport(rational3, riskTaker3);
     testEqual(true,
         Equals(getCargo(result3.first()), new StarChart("A", 5, 2, 3)) &&
@@ -1008,8 +1044,8 @@ void testTradeAtStarport_withTestEqual() {
     );
 
     // Case 4: Neither finds other's cargo VALUABLE → no trade
-    Scavenger rational4 = makeScavenger("RationalScavenger", new InertRock("blue"), this::rationalScavengerAnalysis);
-    Scavenger riskTaker4 = makeScavenger("RiskTakerScavenger", new InertRock("red"), this::riskTakerScavengerAnalysis);
+    Scavenger rational4 = makeScavenger("RationalScavenger", this::rationalScavengerAnalysis, new InertRock("blue"));
+    Scavenger riskTaker4 = makeScavenger("RiskTakerScavenger", this::riskTakerScavengerAnalysis, new InertRock("red"));
     Pair<Scavenger, Scavenger> result4 = tradeAtStarport(rational4, riskTaker4);
     testEqual(true,
         Equals(getCargo(result4.first()), new InertRock("blue")) &&

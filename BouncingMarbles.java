@@ -269,22 +269,6 @@ Ball changeBallDirection(Ball ball) {
     return new Ball(ball.posX, ball.posY, newDir, ball.colour);
 }
 
-/**
- * Update the ball's state for the next step.
- * 1. Check if the ball is currently touch any boundary.
- * 2. If so, change its direction according to the bounce rules for that boundary.
- * 3. Move the ball exactly one step in its new direction.
- * Examples:
- *   - Given: Ball(10, 10, North, BLUE) at top-left corner
- *     Expect: Direction changes to SouthEast, Position becomes (11, 11).
- *   - Given: Ball(150, 10, North, RED) at top edge
- *     Expect: Direction changes to South, Position becomes (150, 11).
- * @param myBall the ball before updating
- * @return a new Ball after bouncing and moving one step
- */
-Ball step(Ball b) {
-    return moveBall(changeBallDirection(b));
-} 
 
 /**
  * Process a key event: 
@@ -373,6 +357,23 @@ World processMouseEvent(World w, MouseEventKind mouseEventKind) {
 World mouseEvent(World w, MouseEvent mouseEvent) {
     return processMouseEvent(w, mouseEvent.kind());
 }
+
+/**
+ * Update the ball's state for the next step.
+ * 1. Check if the ball is currently touch any boundary.
+ * 2. If so, change its direction according to the bounce rules for that boundary.
+ * 3. Move the ball exactly one step in its new direction.
+ * Examples:
+ *   - Given: Ball(10, 10, North, BLUE) at top-left corner
+ *     Expect: Direction changes to SouthEast, Position becomes (11, 11).
+ *   - Given: Ball(150, 10, North, RED) at top edge
+ *     Expect: Direction changes to South, Position becomes (150, 11).
+ * @param myBall the ball before updating
+ * @return a new Ball after bouncing and moving one step
+ */
+Ball stepBall(Ball b) {
+    return moveBall(changeBallDirection(b));
+} 
 
 /**
  * Advance the world by one time step.
@@ -730,7 +731,7 @@ void test_changeBallDirection_returnsNewBall() {
  */
 void test_step_oneBall_noBounce() {
     Ball b = new Ball(100, 100, Direction.East, BLUE);
-    Ball after = step(b);
+    Ball after = stepBall(b);
     testEqual(101, after.posX(), "Moving East, x should be +1, got 1;");
     testEqual(100, after.posY(), "Moving East, y should remain, got 1;");
     testEqual(Direction.East, after.dir(), "Direction should stay East, got 1;");
@@ -741,7 +742,7 @@ void test_step_oneBall_noBounce() {
  */
 void test_step_oneBall_bounceTop() {
     Ball b = new Ball(150, AtTop, Direction.North, BLUE);
-    Ball after = step(b);
+    Ball after = stepBall(b);
     testEqual(Direction.South, after.dir(), "After top bounce, direction should be South, got 1;");
     testEqual(150, after.posX(), "After bounce, x should remain 150, got 1;");
     testEqual(AtTop + 1, after.posY(), "After bounce, should move down 1, got 1;");
@@ -752,16 +753,18 @@ void test_step_oneBall_bounceTop() {
  */
 void test_step_world_updates() {
     World w = new World(
-        new Ball(AtLeft, AtTop, Direction.NorthWest, BLUE),
-        new Ball(AtRight, AtTop, Direction.NorthEast, RED),
-        new Ball(AtLeft, AtBottom, Direction.SouthWest, GREEN),
+        new Ball(AtLeft,  AtTop,    Direction.NorthWest, BLUE),
+        new Ball(AtRight, AtTop,    Direction.NorthEast, RED),
+        new Ball(AtLeft,  AtBottom, Direction.SouthWest, GREEN),
         new Ball(AtRight, AtBottom, Direction.SouthEast, BLACK)
     );
     World a = step(w);
-    testEqual(false, Equals(a.b1().posX(), w.b1().posX()) && Equals(a.b1().posY(), w.b1().posY()), 
-              "b1 should move at least one step, got 1;");
-    testEqual(false, Equals(a.b4().posX(), w.b4().posX()) && Equals(a.b4().posY(), w.b4().posY()), 
-              "b4 should move at least one step, got 1;");
+    testEqual(false,
+        Equals(a.b1().posX(), w.b1().posX()) && Equals(a.b1().posY(), w.b1().posY()),
+        "b1 should move at least one step, got 1;");
+    testEqual(false,
+        Equals(a.b4().posX(), w.b4().posX()) && Equals(a.b4().posY(), w.b4().posY()),
+        "b4 should move at least one step, got 1;");
 }
 
 /**
@@ -804,11 +807,11 @@ void test_get() {
 }
 
 /**
- * Test that drawWorld() never returns null.
+ * Test that draw() never returns null.
  */
 void test_draw_notNull() {
-    Image img = drawWorld(getInitialState());
-    testEqual(false, Equals(img, null), "drawWorld should not return null, got 1;");
+    Image img = draw(getInitialState());
+    testEqual(false, Equals(img, null), "draw should not return null, got 1;");
 }
 
 /**
