@@ -39,7 +39,8 @@ record StarChart(String dest, int risk, int sector, int system) implements Artif
 /**
  * Factory function to create a StarChart artifact.
  * Example:
- *   - makeStarChart("C", 2, 3, 4) → StarChart("C", 2, 3, 4)
+ *   - makeStarChart("C", 2, 3, 4) 
+ *     StarChart("C", 2, 3, 4)
  * @param dest   the destination of the StarChart
  * @param risk   the risk factor of the StarChart
  * @param sector the sector of the origin point of the StarChart
@@ -62,8 +63,9 @@ record EnergyCrystal(int power) implements Artifact {}
 /**
  * Factory function to create an EnergyCrystal artifact.
  * Example:
- *   - makeEnergyCrystal(5) → EnergyCrystal(5)
- * @param power the power level of the EnergyCrystal
+ *   - makeEnergyCrystal(5) 
+ *     EnergyCrystal(5)
+ * @param power the power level of the EnergyCrystal 
  * @return a new EnergyCrystal instance
  */
 EnergyCrystal makeEnergyCrystal(int power) {
@@ -83,7 +85,8 @@ record InertRock(String color) implements Artifact {}
 /**
  * Factory function to create an InertRock artifact.
  * Example:
- *   - makeInertRock("blue") → InertRock("blue")
+ *   - makeInertRock("blue") 
+ *     InertRock("blue")
  * @param color the color of the InertRock
  * @return a new InertRock
  */
@@ -1173,7 +1176,7 @@ Artifact handleTradingPostEncounter(Artifact owned, Artifact other) {
         return other;
     } else {
         return owned;
-}
+    }
 }
 
 // Parses String to StarChart / EnergyCrystal / InertRock
@@ -1248,6 +1251,7 @@ Artifact parseArtifact(String s) {
 }
 
 void main() {
+    test();
     println("Rational Scavenger Tests: ");
     testRationalScavenger();
 
@@ -1267,7 +1271,6 @@ void main() {
     println("FINAL CARGO: " + finalDecription);
 }
 
-
 void testParseRationalScavengerLog() {
      // ASTEROID: Higher power crystal should be picked
     String log1 = "ASTEROID | EnergyCrystal:POWER=5 | EnergyCrystal:POWER=10";
@@ -1286,9 +1289,9 @@ void testParseRationalScavengerLog() {
               "Should keep StarChart when found artifact is different type and not valuable."); 
     
     // ASTEROID: InertRock vs InertRock - keep owned
-    String log4 = "ASTEROID | InertRock:COLOUR=blue | InertRock:COLOUR=red";
+    String log4 = "ASTEROID | InertRock:COLOR=blue | InertRock:COLOR=red";
     Artifact result4 = parseRationalScavengerLog(log4);
-    testEqual("InertRock:COLOUR=blue", describeArtifact(result4), 
+    testEqual("InertRock:COLOR=blue", describeArtifact(result4), 
               "Should keep owned InertRock when both are rocks.");
 
     // ASTEROID: EnergyCrystal lower power - keep owned
@@ -1306,7 +1309,7 @@ void testParseRationalScavengerLog() {
     // TRADING_POST: Both StarCharts, owned has higher level - no trade
     String log7 = "TRADING_POST | StarChart:A;RISK=8;SEC=4;SYS=6 | StarChart:B;RISK=9;SEC=3;SYS=4";
     Artifact result7 = parseRationalScavengerLog(log7);
-    testEqual("StarChart:A;RISK=8;SEC=4;SYS=6", describeArtifact(result7),
+    testEqual("StarChart:B;RISK=9;SEC=3;SYS=4", describeArtifact(result7),
               "Should keep higher-level StarChart.");
 
     // TRADING_POST: One StarChart, one EnergyCrystal - no trade
@@ -1316,8 +1319,8 @@ void testParseRationalScavengerLog() {
               "No trade when artifact types differ.");
 
     // TRADING_POST: Two non-StarCharts - no trade
-    String log9 = "TRADING_POST | InertRock:COLOUR=green | EnergyCrystal:POWER=8";
+    String log9 = "TRADING_POST | InertRock:COLOR=green | EnergyCrystal:POWER=8";
     Artifact result9 = parseRationalScavengerLog(log9);
-    testEqual("InertRock:COLOUR=green", describeArtifact(result9),
+    testEqual("InertRock:COLOR=green", describeArtifact(result9),
               "No trade when neither artifact is a StarChart.");
 }

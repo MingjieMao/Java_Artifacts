@@ -410,7 +410,7 @@ World step(World w) {
  */
 Image draw(World w) {
     Image backgroundImage = Rectangle(WORLD_WIDTH, WORLD_HEIGHT, WHITE);
-    Image ballImage1 = Circle(BALL_RADIUS, w.b1().colour());
+    Image ballImage1 = Circle(BALL_RADIUS, w.b1().colour()); 
     Image ballImage2 = Circle(BALL_RADIUS, w.b2().colour());
     Image ballImage3 = Circle(BALL_RADIUS, w.b3().colour());
     Image ballImage4 = Circle(BALL_RADIUS, w.b4().colour());
@@ -719,7 +719,7 @@ void test_changeAtCorners() {
  * Test that changeBallDirection() returns a new Ball object with the same position but possibly a new direction.
  */
 void test_changeBallDirection_returnsNewBall() {
-    Ball b = new Ball(AtTop, 150, Direction.North, BLUE);
+    Ball b = new Ball(150, AtTop, Direction.North, BLUE);
     Ball c = changeBallDirection(b);
     testEqual(AtTop, c.posY(), "Y position should remain AtTop, got 1;");
     testEqual(150, c.posX(), "X position should remain 150, got 1;");
